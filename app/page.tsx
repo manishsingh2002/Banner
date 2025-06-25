@@ -29,6 +29,23 @@ interface ImageFilters {
   preset: string
 }
 
+interface TextStyles {
+  shopNameFont: string
+  shopNameSize: number
+  productNameFont: string
+  productNameSize: number
+  descriptionFont: string
+  descriptionSize: number
+  priceFont: string
+  priceSize: number
+  inspirationalTextFont: string
+  inspirationalTextSize: number
+  authorNameFont: string
+  authorNameSize: number
+  dateTextFont: string
+  dateTextSize: number
+}
+
 interface BannerData {
   shopName: string
   productName: string
@@ -53,6 +70,7 @@ interface BannerData {
   inspirationalText: string
   authorName: string
   dateText: string
+  textStyles: TextStyles
   imageFilters: {
     productImage: ImageFilters
     horizontalImage: ImageFilters
@@ -79,6 +97,38 @@ const defaultFilters: ImageFilters = {
   textureIntensity: 0,
   textureBlendMode: "overlay",
   preset: "none",
+}
+
+const defaultTextStyles: TextStyles = {
+  shopNameFont: "Inter",
+  shopNameSize: 36,
+  productNameFont: "Inter",
+  productNameSize: 34,
+  descriptionFont: "Inter",
+  descriptionSize: 18,
+  priceFont: "Inter",
+  priceSize: 24,
+  inspirationalTextFont: "Inter",
+  inspirationalTextSize: 16,
+  authorNameFont: "Inter",
+  authorNameSize: 20,
+  dateTextFont: "Inter",
+  dateTextSize: 16,
+}
+
+const fontOptions = {
+  Inter: "Inter, sans-serif",
+  "Dancing Script": "Dancing Script, cursive",
+  "Playfair Display": "Playfair Display, serif",
+  Roboto: "Roboto, sans-serif",
+  "Open Sans": "Open Sans, sans-serif",
+  Lato: "Lato, sans-serif",
+  Montserrat: "Montserrat, sans-serif",
+  Poppins: "Poppins, sans-serif",
+  Oswald: "Oswald, sans-serif",
+  "Source Sans Pro": "Source Sans Pro, sans-serif",
+  Raleway: "Raleway, sans-serif",
+  Nunito: "Nunito, sans-serif",
 }
 
 const textureTypes = {
@@ -450,6 +500,7 @@ export default function SocialBannerCreator() {
     inspirationalText: "",
     authorName: "",
     dateText: "",
+    textStyles: { ...defaultTextStyles },
     imageFilters: {
       productImage: { ...defaultFilters },
       horizontalImage: { ...defaultFilters },
@@ -580,6 +631,16 @@ export default function SocialBannerCreator() {
       imageFilters: {
         ...prev.imageFilters,
         [selectedImageForFilter]: { ...defaultFilters },
+      },
+    }))
+  }
+
+  const updateTextStyle = (property: keyof TextStyles, value: string | number) => {
+    setBannerData((prev) => ({
+      ...prev,
+      textStyles: {
+        ...prev.textStyles,
+        [property]: value,
       },
     }))
   }
@@ -963,7 +1024,7 @@ export default function SocialBannerCreator() {
       // Author name in top right
       if (bannerData.authorName) {
         ctx.fillStyle = "#ffffff"
-        ctx.font = `${20 * scale}px Inter, sans-serif`
+        ctx.font = `${bannerData.textStyles.authorNameSize * scale}px ${fontOptions[bannerData.textStyles.authorNameFont]}`
         ctx.textAlign = "right"
         ctx.fillText(bannerData.authorName, canvas.width - 40 * scale, 60 * scale)
       }
@@ -988,7 +1049,7 @@ export default function SocialBannerCreator() {
       // Main title
       if (bannerData.productName) {
         ctx.fillStyle = "#ffffff"
-        ctx.font = `bold ${72 * scale}px Inter, sans-serif`
+        ctx.font = `bold ${bannerData.textStyles.productNameSize * scale}px ${fontOptions[bannerData.textStyles.productNameFont]}`
         ctx.textAlign = "left"
         ctx.fillText(bannerData.productName, 40 * scale, 280 * scale)
       }
@@ -1086,7 +1147,7 @@ export default function SocialBannerCreator() {
         // Inspirational text
         if (bannerData.inspirationalText) {
           ctx.fillStyle = "#6b7280"
-          ctx.font = `${16 * scale}px Inter, sans-serif`
+          ctx.font = `${bannerData.textStyles.inspirationalTextSize * scale}px ${fontOptions[bannerData.textStyles.inspirationalTextFont]}`
           ctx.textAlign = "left"
 
           const maxWidth = canvas.width * 0.5
@@ -1130,7 +1191,7 @@ export default function SocialBannerCreator() {
         ctx.fill()
 
         ctx.fillStyle = "#ffffff"
-        ctx.font = `${16 * scale}px Inter, sans-serif`
+        ctx.font = `${bannerData.textStyles.dateTextSize * scale}px ${fontOptions[bannerData.textStyles.dateTextFont]}`
         ctx.fillText(bannerData.dateText || "January", dateBoxX + 60 * scale, dateBoxY + 105 * scale)
 
         // Author signature
@@ -1198,7 +1259,7 @@ export default function SocialBannerCreator() {
       // Shop name in premium style
       if (bannerData.shopName) {
         ctx.fillStyle = "#ffffff"
-        ctx.font = `bold ${36 * scale}px "Dancing Script", cursive`
+        ctx.font = `bold ${bannerData.textStyles.shopNameSize * scale}px ${fontOptions[bannerData.textStyles.shopNameFont]}`
         ctx.textAlign = "center"
         ctx.fillText(bannerData.shopName, frameX + frameWidth / 2, headerY + headerHeight / 2 + 12 * scale)
 
@@ -1373,7 +1434,7 @@ export default function SocialBannerCreator() {
 
         if (bannerData.productName) {
           ctx.fillStyle = "#1e293b"
-          ctx.font = `bold ${34 * scale}px Inter, sans-serif`
+          ctx.font = `bold ${bannerData.textStyles.productNameSize * scale}px ${fontOptions[bannerData.textStyles.productNameFont]}`
           ctx.textAlign = "left"
           ctx.fillText(bannerData.productName, frameX + 25 * scale, headerY)
         }
@@ -1381,7 +1442,7 @@ export default function SocialBannerCreator() {
         // Description with better formatting
         if (bannerData.description) {
           ctx.fillStyle = "#374151"
-          ctx.font = `${18 * scale}px Inter, sans-serif`
+          ctx.font = `${bannerData.textStyles.descriptionSize * scale}px ${fontOptions[bannerData.textStyles.descriptionFont]}`
           ctx.textAlign = "left"
 
           const maxWidth = frameWidth - 50 * scale
@@ -1423,8 +1484,8 @@ export default function SocialBannerCreator() {
 
         // Price in premium gold color
         if (bannerData.price) {
-          ctx.fillStyle = "#fbbf24" // Beautiful gold color
-          ctx.font = `bold ${24 * scale}px Inter, sans-serif`
+          ctx.fillStyle = "#fbbf24"
+          ctx.font = `bold ${bannerData.textStyles.priceSize * scale}px ${fontOptions[bannerData.textStyles.priceFont]}`
           ctx.textAlign = "center"
           ctx.fillText(`💰 $${bannerData.price}`, frameX + frameWidth / 2, footerY - 5 * scale)
         }
@@ -1652,13 +1713,14 @@ export default function SocialBannerCreator() {
       function drawOriginalText() {
         // Draw shop name
         ctx.fillStyle = theme.shopNameColor
-        ctx.font = `bold ${60 * scale}px ${theme.shopNameFont}`
+        ctx.font = `bold ${bannerData.textStyles.shopNameSize * scale}px ${fontOptions[bannerData.textStyles.shopNameFont]}`
         ctx.textAlign = "center"
         ctx.fillText(bannerData.shopName, canvas.width / 2, canvas.height * 0.75)
 
         // Draw product name
         ctx.fillStyle = theme.productNameColor
-        const productFontSize = bannerData.designTheme === "elegant_cursive" ? 48 * scale : 40 * scale
+        const productFontSize =
+          bannerData.designTheme === "elegant_cursive" ? bannerData.textStyles.productNameSize * scale : 40 * scale
         ctx.font = `${productFontSize}px ${theme.productNameFont}`
         ctx.fillText(bannerData.productName, canvas.width / 2, canvas.height * 0.82)
 
@@ -1742,9 +1804,10 @@ export default function SocialBannerCreator() {
             </CardHeader>
             <CardContent className="space-y-6">
               <Tabs defaultValue="content" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="content">Content</TabsTrigger>
                   <TabsTrigger value="filters">🎨 Filters</TabsTrigger>
+                  <TabsTrigger value="typography">🔤 Typography</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="content" className="space-y-6">
@@ -2265,6 +2328,283 @@ export default function SocialBannerCreator() {
                             <p className="text-sm">Upload an image to see filter preview</p>
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="typography" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-lg">🔤</span>
+                      <h3 className="font-semibold">Text Styling</h3>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Shop Name Styling */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <Label className="font-semibold text-base">Shop Name</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label>Font Family</Label>
+                            <Select
+                              value={bannerData.textStyles.shopNameFont}
+                              onValueChange={(value) => updateTextStyle("shopNameFont", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(fontOptions).map(([key, value]) => (
+                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                    {key}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Font Size: {bannerData.textStyles.shopNameSize}px</Label>
+                            <Slider
+                              value={[bannerData.textStyles.shopNameSize]}
+                              onValueChange={([value]) => updateTextStyle("shopNameSize", value)}
+                              min={12}
+                              max={72}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Product Name Styling */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <Label className="font-semibold text-base">Product Name</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label>Font Family</Label>
+                            <Select
+                              value={bannerData.textStyles.productNameFont}
+                              onValueChange={(value) => updateTextStyle("productNameFont", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(fontOptions).map(([key, value]) => (
+                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                    {key}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Font Size: {bannerData.textStyles.productNameSize}px</Label>
+                            <Slider
+                              value={[bannerData.textStyles.productNameSize]}
+                              onValueChange={([value]) => updateTextStyle("productNameSize", value)}
+                              min={12}
+                              max={72}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description Styling */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <Label className="font-semibold text-base">Description</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label>Font Family</Label>
+                            <Select
+                              value={bannerData.textStyles.descriptionFont}
+                              onValueChange={(value) => updateTextStyle("descriptionFont", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(fontOptions).map(([key, value]) => (
+                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                    {key}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Font Size: {bannerData.textStyles.descriptionSize}px</Label>
+                            <Slider
+                              value={[bannerData.textStyles.descriptionSize]}
+                              onValueChange={([value]) => updateTextStyle("descriptionSize", value)}
+                              min={10}
+                              max={32}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price Styling */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <Label className="font-semibold text-base">Price</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label>Font Family</Label>
+                            <Select
+                              value={bannerData.textStyles.priceFont}
+                              onValueChange={(value) => updateTextStyle("priceFont", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(fontOptions).map(([key, value]) => (
+                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                    {key}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Font Size: {bannerData.textStyles.priceSize}px</Label>
+                            <Slider
+                              value={[bannerData.textStyles.priceSize]}
+                              onValueChange={([value]) => updateTextStyle("priceSize", value)}
+                              min={12}
+                              max={48}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {bannerData.designTheme === "inspirational_vibes" && (
+                        <>
+                          {/* Author Name Styling */}
+                          <div className="space-y-3 p-4 border rounded-lg">
+                            <Label className="font-semibold text-base">Author Name</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label>Font Family</Label>
+                                <Select
+                                  value={bannerData.textStyles.authorNameFont}
+                                  onValueChange={(value) => updateTextStyle("authorNameFont", value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(fontOptions).map(([key, value]) => (
+                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                        {key}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Font Size: {bannerData.textStyles.authorNameSize}px</Label>
+                                <Slider
+                                  value={[bannerData.textStyles.authorNameSize]}
+                                  onValueChange={([value]) => updateTextStyle("authorNameSize", value)}
+                                  min={10}
+                                  max={32}
+                                  step={1}
+                                  className="w-full"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Inspirational Text Styling */}
+                          <div className="space-y-3 p-4 border rounded-lg">
+                            <Label className="font-semibold text-base">Inspirational Text</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label>Font Family</Label>
+                                <Select
+                                  value={bannerData.textStyles.inspirationalTextFont}
+                                  onValueChange={(value) => updateTextStyle("inspirationalTextFont", value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(fontOptions).map(([key, value]) => (
+                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                        {key}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Font Size: {bannerData.textStyles.inspirationalTextSize}px</Label>
+                                <Slider
+                                  value={[bannerData.textStyles.inspirationalTextSize]}
+                                  onValueChange={([value]) => updateTextStyle("inspirationalTextSize", value)}
+                                  min={10}
+                                  max={24}
+                                  step={1}
+                                  className="w-full"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Date Text Styling */}
+                          <div className="space-y-3 p-4 border rounded-lg">
+                            <Label className="font-semibold text-base">Date Text</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label>Font Family</Label>
+                                <Select
+                                  value={bannerData.textStyles.dateTextFont}
+                                  onValueChange={(value) => updateTextStyle("dateTextFont", value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(fontOptions).map(([key, value]) => (
+                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                        {key}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Font Size: {bannerData.textStyles.dateTextSize}px</Label>
+                                <Slider
+                                  value={[bannerData.textStyles.dateTextSize]}
+                                  onValueChange={(value) => updateTextStyle("dateTextSize", value)}
+                                  min={10}
+                                  max={24}
+                                  step={1}
+                                  className="w-full"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setBannerData((prev) => ({ ...prev, textStyles: { ...defaultTextStyles } }))}
+                          className="flex-1"
+                        >
+                          Reset Typography
+                        </Button>
                       </div>
                     </div>
                   </div>
