@@ -18,11 +18,22 @@ interface BannerData {
   verticalImage1: string | null
   verticalImage2: string | null
   verticalImage3: string | null
+  inspirationalImage1: string | null
+  inspirationalImage2: string | null
   resolution: "1080" | "4k"
-  designTheme: "social_gallery" | "instagram_mood" | "minimalist" | "vibrant" | "elegant_cursive"
+  designTheme:
+    | "social_gallery"
+    | "instagram_mood"
+    | "minimalist"
+    | "vibrant"
+    | "elegant_cursive"
+    | "inspirational_vibes"
   description: string
   photographer: string
   price: string
+  inspirationalText: string
+  authorName: string
+  dateText: string
 }
 
 const themes = {
@@ -42,6 +53,15 @@ const themes = {
     bodyTextColor: "#1f2937",
     accentColor: "#2d5a3d",
     headerFont: "Dancing Script, cursive",
+    bodyFont: "Inter, sans-serif",
+  },
+  inspirational_vibes: {
+    background: "linear-gradient(135deg, #4a90a4, #5ba3b8, #6bb6cc)",
+    primaryColor: "#ffffff",
+    secondaryColor: "#f8fafc",
+    accentColor: "#4a90a4",
+    textColor: "#374151",
+    headerFont: "Inter, sans-serif",
     bodyFont: "Inter, sans-serif",
   },
   minimalist: {
@@ -79,11 +99,16 @@ export default function SocialBannerCreator() {
     verticalImage1: null,
     verticalImage2: null,
     verticalImage3: null,
+    inspirationalImage1: null,
+    inspirationalImage2: null,
     resolution: "1080",
     designTheme: "social_gallery",
     description: "",
     photographer: "",
     price: "",
+    inspirationalText: "",
+    authorName: "",
+    dateText: "",
   })
 
   const [templates, setTemplates] = useState([])
@@ -97,6 +122,8 @@ export default function SocialBannerCreator() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const horizontalImageRef = useRef<HTMLInputElement>(null)
   const verticalImageRefs = useRef<(HTMLInputElement | null)[]>([])
+  const inspirationalImage1Ref = useRef<HTMLInputElement>(null)
+  const inspirationalImage2Ref = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -134,6 +161,34 @@ export default function SocialBannerCreator() {
         setBannerData((prev) => ({
           ...prev,
           [`verticalImage${imageNumber}`]: e.target?.result as string,
+        }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleInspirationalImage1Upload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setBannerData((prev) => ({
+          ...prev,
+          inspirationalImage1: e.target?.result as string,
+        }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleInspirationalImage2Upload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setBannerData((prev) => ({
+          ...prev,
+          inspirationalImage2: e.target?.result as string,
         }))
       }
       reader.readAsDataURL(file)
@@ -233,6 +288,8 @@ export default function SocialBannerCreator() {
         drawInstagramMoodBoard()
       }
       bgImg.src = "/reference-bg.jpg"
+    } else if (bannerData.designTheme === "inspirational_vibes") {
+      drawInspirationalVibes()
     } else {
       // Original theme logic for other themes
       const theme = themes[bannerData.designTheme]
@@ -253,6 +310,193 @@ export default function SocialBannerCreator() {
       ctx.fillStyle = gradient
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       drawOriginalDesign()
+    }
+
+    function drawInspirationalVibes() {
+      // Create beautiful gradient background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
+      gradient.addColorStop(0, "#4a90a4")
+      gradient.addColorStop(0.5, "#5ba3b8")
+      gradient.addColorStop(1, "#6bb6cc")
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      // Top section with title and author
+      const topSectionHeight = canvas.height * 0.45
+
+      // Author name in top right
+      if (bannerData.authorName) {
+        ctx.fillStyle = "#ffffff"
+        ctx.font = `${20 * scale}px Inter, sans-serif`
+        ctx.textAlign = "right"
+        ctx.fillText(bannerData.authorName, canvas.width - 40 * scale, 60 * scale)
+      }
+
+      // Decorative elements (color palette simulation)
+      const paletteY = 120 * scale
+      const paletteX = 40 * scale
+
+      // White rectangle
+      ctx.fillStyle = "#ffffff"
+      ctx.fillRect(paletteX, paletteY, 80 * scale, 30 * scale)
+
+      // Color circles
+      const colors = ["#8bb3c7", "#d4a574", "#c7b299"]
+      colors.forEach((color, index) => {
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(paletteX + 20 * scale + index * 25 * scale, paletteY + 60 * scale, 12 * scale, 0, 2 * Math.PI)
+        ctx.fill()
+      })
+
+      // Main title
+      if (bannerData.productName) {
+        ctx.fillStyle = "#ffffff"
+        ctx.font = `bold ${72 * scale}px Inter, sans-serif`
+        ctx.textAlign = "left"
+        ctx.fillText(bannerData.productName, 40 * scale, 280 * scale)
+      }
+
+      // Color and Font labels
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `${24 * scale}px Inter, sans-serif`
+      ctx.textAlign = "left"
+      ctx.fillText("Color", 40 * scale, 200 * scale)
+      ctx.fillText("Font", 40 * scale, 350 * scale)
+      ctx.fillText("Poppins", 40 * scale, 380 * scale)
+
+      // Archive credit
+      if (bannerData.shopName) {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
+        ctx.font = `${16 * scale}px Inter, sans-serif`
+        ctx.textAlign = "right"
+        ctx.fillText(`Archived By @${bannerData.shopName}`, canvas.width - 40 * scale, topSectionHeight - 40 * scale)
+      }
+
+      // Bottom white card section
+      const cardY = topSectionHeight
+      const cardHeight = canvas.height - topSectionHeight - 40 * scale
+      const cardMargin = 30 * scale
+
+      ctx.fillStyle = "#ffffff"
+      ctx.beginPath()
+      ctx.roundRect(cardMargin, cardY, canvas.width - cardMargin * 2, cardHeight, 20 * scale)
+      ctx.fill()
+
+      // Self Reminder tag
+      ctx.fillStyle = "#8bb3c7"
+      ctx.beginPath()
+      ctx.roundRect(60 * scale, cardY + 30 * scale, 160 * scale, 40 * scale, 20 * scale)
+      ctx.fill()
+
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `${18 * scale}px Inter, sans-serif`
+      ctx.textAlign = "center"
+      ctx.fillText("Self Reminder", 140 * scale, cardY + 55 * scale)
+
+      // Main image
+      if (bannerData.inspirationalImage1) {
+        const img = new Image()
+        img.crossOrigin = "anonymous"
+        img.onload = () => {
+          const imageY = cardY + 90 * scale
+          const imageHeight = cardHeight * 0.5
+          const imageWidth = canvas.width - cardMargin * 2 - 40 * scale
+          const imageX = cardMargin + 20 * scale
+
+          ctx.save()
+          ctx.beginPath()
+          ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 15 * scale)
+          ctx.clip()
+          ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight)
+          ctx.restore()
+
+          drawInspirationalText()
+        }
+        img.src = bannerData.inspirationalImage1
+      } else {
+        drawInspirationalText()
+      }
+
+      function drawInspirationalText() {
+        const textY = cardY + cardHeight * 0.65
+
+        // Page and Today headers
+        ctx.fillStyle = "#374151"
+        ctx.font = `bold ${24 * scale}px Inter, sans-serif`
+        ctx.textAlign = "left"
+        ctx.fillText("Page", 60 * scale, textY)
+
+        ctx.textAlign = "right"
+        ctx.fillText("Today", canvas.width - 60 * scale, textY)
+
+        // Decorative line
+        ctx.strokeStyle = "#374151"
+        ctx.lineWidth = 3 * scale
+        ctx.beginPath()
+        ctx.moveTo(canvas.width * 0.4, textY + 10 * scale)
+        ctx.lineTo(canvas.width * 0.6, textY + 10 * scale)
+        ctx.stroke()
+
+        // Inspirational text
+        if (bannerData.inspirationalText) {
+          ctx.fillStyle = "#6b7280"
+          ctx.font = `${16 * scale}px Inter, sans-serif`
+          ctx.textAlign = "left"
+
+          const maxWidth = canvas.width * 0.5
+          const words = bannerData.inspirationalText.split(" ")
+          let line = ""
+          let y = textY + 40 * scale
+          const lineHeight = 22 * scale
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " "
+            const metrics = ctx.measureText(testLine)
+
+            if (metrics.width > maxWidth && n > 0) {
+              ctx.fillText(line, 60 * scale, y)
+              line = words[n] + " "
+              y += lineHeight
+            } else {
+              line = testLine
+            }
+          }
+          ctx.fillText(line, 60 * scale, y)
+        }
+
+        // Date section
+        const dateBoxX = canvas.width - 180 * scale
+        const dateBoxY = textY + 30 * scale
+
+        ctx.fillStyle = "#6b7280"
+        ctx.beginPath()
+        ctx.roundRect(dateBoxX, dateBoxY, 120 * scale, 80 * scale, 10 * scale)
+        ctx.fill()
+
+        ctx.fillStyle = "#ffffff"
+        ctx.font = `bold ${36 * scale}px Inter, sans-serif`
+        ctx.textAlign = "center"
+        ctx.fillText("08", dateBoxX + 60 * scale, dateBoxY + 50 * scale)
+
+        ctx.fillStyle = "#6b7280"
+        ctx.beginPath()
+        ctx.roundRect(dateBoxX, dateBoxY + 85 * scale, 120 * scale, 35 * scale, 10 * scale)
+        ctx.fill()
+
+        ctx.fillStyle = "#ffffff"
+        ctx.font = `${16 * scale}px Inter, sans-serif`
+        ctx.fillText(bannerData.dateText || "January", dateBoxX + 60 * scale, dateBoxY + 105 * scale)
+
+        // Author signature
+        ctx.fillStyle = "#374151"
+        ctx.font = `${14 * scale}px Inter, sans-serif`
+        ctx.textAlign = "left"
+        ctx.fillText("Askar Akmil Design", 60 * scale, cardY + cardHeight - 40 * scale)
+        ctx.fillText("Typography Editor", 60 * scale, cardY + cardHeight - 20 * scale)
+
+        setIsGenerating(false)
+      }
     }
 
     function drawSocialGallery() {
@@ -764,6 +1008,11 @@ export default function SocialBannerCreator() {
       bannerData.verticalImage1 ||
       bannerData.verticalImage2 ||
       bannerData.verticalImage3 ||
+      bannerData.inspirationalImage1 ||
+      bannerData.inspirationalImage2 ||
+      bannerData.inspirationalText ||
+      bannerData.authorName ||
+      bannerData.dateText ||
       bannerData.price
     ) {
       generateBanner()
@@ -906,7 +1155,13 @@ export default function SocialBannerCreator() {
                 <Select
                   value={bannerData.designTheme}
                   onValueChange={(
-                    value: "social_gallery" | "instagram_mood" | "minimalist" | "vibrant" | "elegant_cursive",
+                    value:
+                      | "social_gallery"
+                      | "instagram_mood"
+                      | "minimalist"
+                      | "vibrant"
+                      | "elegant_cursive"
+                      | "inspirational_vibes",
                   ) => setBannerData((prev) => ({ ...prev, designTheme: value }))}
                 >
                   <SelectTrigger>
@@ -915,12 +1170,91 @@ export default function SocialBannerCreator() {
                   <SelectContent>
                     <SelectItem value="social_gallery">Social Gallery Post</SelectItem>
                     <SelectItem value="instagram_mood">Instagram Mood Board</SelectItem>
+                    <SelectItem value="inspirational_vibes">Inspirational Vibes</SelectItem>
                     <SelectItem value="elegant_cursive">Elegant Cursive Accent</SelectItem>
                     <SelectItem value="minimalist">Minimalist Chic</SelectItem>
                     <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              {bannerData.designTheme === "inspirational_vibes" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="authorName">Author Name</Label>
+                    <Input
+                      id="authorName"
+                      placeholder="Enter author name"
+                      value={bannerData.authorName}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, authorName: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="inspirationalText">Inspirational Text</Label>
+                    <Input
+                      id="inspirationalText"
+                      placeholder="Enter inspirational message"
+                      value={bannerData.inspirationalText}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, inspirationalText: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dateText">Date Text</Label>
+                    <Input
+                      id="dateText"
+                      placeholder="Enter month (e.g., January)"
+                      value={bannerData.dateText}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, dateText: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Main Inspirational Image</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => inspirationalImage1Ref.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Image 1
+                      </Button>
+                      {bannerData.inspirationalImage1 && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                    </div>
+                    <input
+                      ref={inspirationalImage1Ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleInspirationalImage1Upload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Secondary Image (Optional)</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => inspirationalImage2Ref.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Image 2
+                      </Button>
+                      {bannerData.inspirationalImage2 && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                    </div>
+                    <input
+                      ref={inspirationalImage2Ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleInspirationalImage2Upload}
+                      className="hidden"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="space-y-2">
                 <Label>Download Resolution</Label>
