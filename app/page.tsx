@@ -23,6 +23,9 @@ interface ImageFilters {
   hdr: number
   vignette: number
   filmGrain: number
+  textureType: string
+  textureIntensity: number
+  textureBlendMode: string
   preset: string
 }
 
@@ -72,7 +75,33 @@ const defaultFilters: ImageFilters = {
   hdr: 0,
   vignette: 0,
   filmGrain: 0,
+  textureType: "none",
+  textureIntensity: 0,
+  textureBlendMode: "overlay",
   preset: "none",
+}
+
+const textureTypes = {
+  none: "No Texture",
+  paper: "Paper",
+  canvas: "Canvas",
+  fabric: "Fabric",
+  linen: "Linen",
+  watercolor: "Watercolor Paper",
+  parchment: "Parchment",
+  cardboard: "Cardboard",
+  leather: "Leather",
+  wood: "Wood Grain",
+}
+
+const blendModes = {
+  overlay: "Overlay",
+  multiply: "Multiply",
+  screen: "Screen",
+  softLight: "Soft Light",
+  hardLight: "Hard Light",
+  colorBurn: "Color Burn",
+  colorDodge: "Color Dodge",
 }
 
 const filterPresets = {
@@ -87,6 +116,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 0,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   vintage: {
     brightness: 110,
@@ -99,6 +131,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 20,
     filmGrain: 15,
+    textureType: "paper",
+    textureIntensity: 25,
+    textureBlendMode: "multiply",
   },
   blackwhite: {
     brightness: 105,
@@ -111,6 +146,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 15,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   sepia: {
     brightness: 110,
@@ -123,6 +161,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 25,
     filmGrain: 10,
+    textureType: "parchment",
+    textureIntensity: 30,
+    textureBlendMode: "multiply",
   },
   dramatic: {
     brightness: 90,
@@ -135,6 +176,9 @@ const filterPresets = {
     hdr: 30,
     vignette: 35,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   soft: {
     brightness: 115,
@@ -147,6 +191,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 10,
     filmGrain: 5,
+    textureType: "fabric",
+    textureIntensity: 15,
+    textureBlendMode: "softLight",
   },
   cool: {
     brightness: 105,
@@ -159,6 +206,9 @@ const filterPresets = {
     hdr: 15,
     vignette: 0,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   warm: {
     brightness: 110,
@@ -171,6 +221,9 @@ const filterPresets = {
     hdr: 10,
     vignette: 15,
     filmGrain: 8,
+    textureType: "canvas",
+    textureIntensity: 20,
+    textureBlendMode: "overlay",
   },
   neon: {
     brightness: 120,
@@ -183,6 +236,9 @@ const filterPresets = {
     hdr: 25,
     vignette: 0,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   dreamy: {
     brightness: 120,
@@ -195,6 +251,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 20,
     filmGrain: 12,
+    textureType: "watercolor",
+    textureIntensity: 25,
+    textureBlendMode: "softLight",
   },
   hdr: {
     brightness: 110,
@@ -207,6 +266,9 @@ const filterPresets = {
     hdr: 50,
     vignette: 10,
     filmGrain: 0,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   cinematic: {
     brightness: 95,
@@ -219,6 +281,9 @@ const filterPresets = {
     hdr: 20,
     vignette: 40,
     filmGrain: 20,
+    textureType: "none",
+    textureIntensity: 0,
+    textureBlendMode: "overlay",
   },
   film: {
     brightness: 105,
@@ -231,6 +296,9 @@ const filterPresets = {
     hdr: 0,
     vignette: 30,
     filmGrain: 35,
+    textureType: "paper",
+    textureIntensity: 20,
+    textureBlendMode: "multiply",
   },
   portrait: {
     brightness: 108,
@@ -243,6 +311,9 @@ const filterPresets = {
     hdr: 15,
     vignette: 25,
     filmGrain: 5,
+    textureType: "fabric",
+    textureIntensity: 10,
+    textureBlendMode: "softLight",
   },
   landscape: {
     brightness: 105,
@@ -255,6 +326,54 @@ const filterPresets = {
     hdr: 35,
     vignette: 15,
     filmGrain: 0,
+    textureType: "canvas",
+    textureIntensity: 15,
+    textureBlendMode: "overlay",
+  },
+  artistic: {
+    brightness: 110,
+    contrast: 115,
+    saturation: 105,
+    blur: 0,
+    sepia: 10,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 10,
+    vignette: 20,
+    filmGrain: 15,
+    textureType: "canvas",
+    textureIntensity: 40,
+    textureBlendMode: "overlay",
+  },
+  vintage_paper: {
+    brightness: 115,
+    contrast: 110,
+    saturation: 85,
+    blur: 0,
+    sepia: 40,
+    grayscale: 0,
+    hueRotate: 15,
+    hdr: 0,
+    vignette: 30,
+    filmGrain: 25,
+    textureType: "parchment",
+    textureIntensity: 50,
+    textureBlendMode: "multiply",
+  },
+  fabric_art: {
+    brightness: 105,
+    contrast: 105,
+    saturation: 95,
+    blur: 0,
+    sepia: 5,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 15,
+    filmGrain: 10,
+    textureType: "linen",
+    textureIntensity: 35,
+    textureBlendMode: "overlay",
   },
 }
 
@@ -441,7 +560,7 @@ export default function SocialBannerCreator() {
     }))
   }
 
-  const updateFilter = (filterName: string, value: number) => {
+  const updateFilter = (filterName: string, value: number | string) => {
     setBannerData((prev) => ({
       ...prev,
       imageFilters: {
@@ -463,6 +582,169 @@ export default function SocialBannerCreator() {
         [selectedImageForFilter]: { ...defaultFilters },
       },
     }))
+  }
+
+  const createTexture = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    textureType: string,
+  ): HTMLCanvasElement => {
+    const textureCanvas = document.createElement("canvas")
+    const textureCtx = textureCanvas.getContext("2d")!
+    textureCanvas.width = width
+    textureCanvas.height = height
+
+    switch (textureType) {
+      case "paper":
+        // Create paper texture with subtle noise
+        const paperImageData = textureCtx.createImageData(width, height)
+        for (let i = 0; i < paperImageData.data.length; i += 4) {
+          const noise = Math.random() * 40 - 20
+          const baseColor = 240 + noise
+          paperImageData.data[i] = baseColor // Red
+          paperImageData.data[i + 1] = baseColor - 5 // Green
+          paperImageData.data[i + 2] = baseColor - 10 // Blue
+          paperImageData.data[i + 3] = 255 // Alpha
+        }
+        textureCtx.putImageData(paperImageData, 0, 0)
+        break
+
+      case "canvas":
+        // Create canvas texture with crosshatch pattern
+        textureCtx.fillStyle = "#f5f5f0"
+        textureCtx.fillRect(0, 0, width, height)
+        textureCtx.strokeStyle = "rgba(200, 200, 190, 0.3)"
+        textureCtx.lineWidth = 0.5
+
+        for (let x = 0; x < width; x += 3) {
+          textureCtx.beginPath()
+          textureCtx.moveTo(x, 0)
+          textureCtx.lineTo(x, height)
+          textureCtx.stroke()
+        }
+        for (let y = 0; y < height; y += 3) {
+          textureCtx.beginPath()
+          textureCtx.moveTo(0, y)
+          textureCtx.lineTo(width, y)
+          textureCtx.stroke()
+        }
+        break
+
+      case "fabric":
+        // Create fabric texture with woven pattern
+        textureCtx.fillStyle = "#f8f8f6"
+        textureCtx.fillRect(0, 0, width, height)
+        textureCtx.fillStyle = "rgba(220, 220, 210, 0.4)"
+
+        for (let x = 0; x < width; x += 4) {
+          for (let y = 0; y < height; y += 4) {
+            if ((x + y) % 8 === 0) {
+              textureCtx.fillRect(x, y, 2, 2)
+            }
+          }
+        }
+        break
+
+      case "linen":
+        // Create linen texture with irregular weave
+        textureCtx.fillStyle = "#faf9f7"
+        textureCtx.fillRect(0, 0, width, height)
+        textureCtx.fillStyle = "rgba(210, 205, 195, 0.3)"
+
+        for (let x = 0; x < width; x += 2) {
+          for (let y = 0; y < height; y += 2) {
+            if (Math.random() > 0.7) {
+              textureCtx.fillRect(x, y, 1, 1)
+            }
+          }
+        }
+        break
+
+      case "watercolor":
+        // Create watercolor paper texture
+        const watercolorImageData = textureCtx.createImageData(width, height)
+        for (let i = 0; i < watercolorImageData.data.length; i += 4) {
+          const noise = Math.random() * 30 - 15
+          const baseColor = 250 + noise
+          watercolorImageData.data[i] = baseColor // Red
+          watercolorImageData.data[i + 1] = baseColor // Green
+          watercolorImageData.data[i + 2] = baseColor + 5 // Blue
+          watercolorImageData.data[i + 3] = 255 // Alpha
+        }
+        textureCtx.putImageData(watercolorImageData, 0, 0)
+        break
+
+      case "parchment":
+        // Create aged parchment texture
+        textureCtx.fillStyle = "#f4f1e8"
+        textureCtx.fillRect(0, 0, width, height)
+        const parchmentImageData = textureCtx.createImageData(width, height)
+        for (let i = 0; i < parchmentImageData.data.length; i += 4) {
+          const noise = Math.random() * 25 - 12
+          parchmentImageData.data[i] = 244 + noise // Red
+          parchmentImageData.data[i + 1] = 241 + noise - 5 // Green
+          parchmentImageData.data[i + 2] = 232 + noise - 10 // Blue
+          parchmentImageData.data[i + 3] = 255 // Alpha
+        }
+        textureCtx.putImageData(parchmentImageData, 0, 0)
+        break
+
+      case "cardboard":
+        // Create cardboard texture
+        textureCtx.fillStyle = "#d4c4a8"
+        textureCtx.fillRect(0, 0, width, height)
+        textureCtx.strokeStyle = "rgba(180, 160, 130, 0.4)"
+        textureCtx.lineWidth = 1
+
+        for (let y = 0; y < height; y += 8) {
+          textureCtx.beginPath()
+          textureCtx.moveTo(0, y)
+          textureCtx.lineTo(width, y)
+          textureCtx.stroke()
+        }
+        break
+
+      case "leather":
+        // Create leather texture
+        textureCtx.fillStyle = "#8b4513"
+        textureCtx.fillRect(0, 0, width, height)
+        for (let i = 0; i < 200; i++) {
+          const x = Math.random() * width
+          const y = Math.random() * height
+          const size = Math.random() * 3 + 1
+          textureCtx.fillStyle = `rgba(${139 + Math.random() * 40}, ${69 + Math.random() * 30}, ${19 + Math.random() * 20}, 0.3)`
+          textureCtx.beginPath()
+          textureCtx.arc(x, y, size, 0, Math.PI * 2)
+          textureCtx.fill()
+        }
+        break
+
+      case "wood":
+        // Create wood grain texture
+        textureCtx.fillStyle = "#deb887"
+        textureCtx.fillRect(0, 0, width, height)
+        textureCtx.strokeStyle = "rgba(160, 120, 80, 0.3)"
+        textureCtx.lineWidth = 2
+
+        for (let y = 0; y < height; y += 12) {
+          textureCtx.beginPath()
+          textureCtx.moveTo(0, y + Math.sin(y * 0.1) * 3)
+          for (let x = 0; x < width; x += 10) {
+            textureCtx.lineTo(x, y + Math.sin((x + y) * 0.05) * 3)
+          }
+          textureCtx.stroke()
+        }
+        break
+
+      default:
+        // No texture
+        textureCtx.fillStyle = "transparent"
+        textureCtx.fillRect(0, 0, width, height)
+        break
+    }
+
+    return textureCanvas
   }
 
   const getFilterString = (filters: ImageFilters): string => {
@@ -490,32 +772,51 @@ export default function SocialBannerCreator() {
     ctx.filter = getFilterString(filters)
 
     // For advanced effects, we'll apply them after drawing the image
-    return { needsAdvancedFilters: filters.vignette > 0 || filters.filmGrain > 0, filters }
+    return {
+      needsAdvancedFilters: filters.vignette > 0 || filters.filmGrain > 0 || filters.textureType !== "none",
+      filters,
+    }
   }
 
   const applyAdvancedFilters = (
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement,
     filters: ImageFilters,
-    imageData?: ImageData,
+    x = 0,
+    y = 0,
+    width: number = canvas.width,
+    height: number = canvas.height,
   ) => {
+    // Apply texture overlay
+    if (filters.textureType !== "none" && filters.textureIntensity > 0) {
+      const textureCanvas = createTexture(ctx, width, height, filters.textureType)
+      ctx.save()
+      ctx.globalAlpha = filters.textureIntensity / 100
+      ctx.globalCompositeOperation = filters.textureBlendMode as GlobalCompositeOperation
+      ctx.drawImage(textureCanvas, x, y, width, height)
+      ctx.restore()
+    }
+
     // Apply vignette effect
     if (filters.vignette > 0) {
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY)
+      const centerX = x + width / 2
+      const centerY = y + height / 2
+      const maxDistance = Math.sqrt((width / 2) * (width / 2) + (height / 2) * (height / 2))
 
       const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxDistance)
       gradient.addColorStop(0, `rgba(0, 0, 0, 0)`)
       gradient.addColorStop(0.6, `rgba(0, 0, 0, 0)`)
       gradient.addColorStop(1, `rgba(0, 0, 0, ${filters.vignette / 100})`)
 
+      ctx.save()
       ctx.fillStyle = gradient
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillRect(x, y, width, height)
+      ctx.restore()
     }
 
     // Apply film grain effect
-    if (filters.filmGrain > 0 && imageData) {
+    if (filters.filmGrain > 0) {
+      const imageData = ctx.getImageData(x, y, width, height)
       const data = imageData.data
       const intensity = filters.filmGrain / 100
 
@@ -526,7 +827,7 @@ export default function SocialBannerCreator() {
         data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)) // Blue
       }
 
-      ctx.putImageData(imageData, 0, 0)
+      ctx.putImageData(imageData, x, y)
     }
   }
 
@@ -750,8 +1051,7 @@ export default function SocialBannerCreator() {
 
           // Apply advanced filters if needed
           if (filterResult.needsAdvancedFilters) {
-            const imageData = ctx.getImageData(imageX, imageY, imageWidth, imageHeight)
-            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageX, imageY, imageWidth, imageHeight)
           }
 
           ctx.restore()
@@ -942,8 +1242,15 @@ export default function SocialBannerCreator() {
 
           // Apply advanced filters if needed
           if (filterResult.needsAdvancedFilters) {
-            const imageData = ctx.getImageData(mainImageX, mainImageY, mainImageWidth, mainImageHeight)
-            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+            applyAdvancedFilters(
+              ctx,
+              canvas,
+              filterResult.filters,
+              mainImageX,
+              mainImageY,
+              mainImageWidth,
+              mainImageHeight,
+            )
           }
 
           ctx.restore()
@@ -1011,8 +1318,15 @@ export default function SocialBannerCreator() {
 
               // Apply advanced filters if needed
               if (filterResult.needsAdvancedFilters) {
-                const imageData = ctx.getImageData(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight)
-                applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+                applyAdvancedFilters(
+                  ctx,
+                  canvas,
+                  filterResult.filters,
+                  imageX,
+                  verticalImagesY,
+                  verticalImageWidth,
+                  verticalImageHeight,
+                )
               }
 
               ctx.restore()
@@ -1186,8 +1500,7 @@ export default function SocialBannerCreator() {
 
           // Apply advanced filters if needed
           if (filterResult.needsAdvancedFilters) {
-            const imageData = ctx.getImageData(imageX, imageY, imageWidth, imageHeight)
-            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageX, imageY, imageWidth, imageHeight)
           }
 
           ctx.restore()
@@ -1324,8 +1637,7 @@ export default function SocialBannerCreator() {
 
           // Apply advanced filters if needed
           if (filterResult.needsAdvancedFilters) {
-            const imageData = ctx.getImageData(imageX, imageY, imageSize, imageSize)
-            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageX, imageY, imageSize, imageSize)
           }
 
           ctx.restore()
@@ -1353,10 +1665,6 @@ export default function SocialBannerCreator() {
         setIsGenerating(false)
       }
     }
-
-    // Apply advanced filters after drawing the image
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    applyAdvancedFilters(ctx, canvas, bannerData.imageFilters.productImage, imageData)
   }
 
   const downloadBanner = (format = "png") => {
@@ -1420,7 +1728,7 @@ export default function SocialBannerCreator() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Social Share Banner Creator</h1>
-          <p className="text-gray-600">Create stunning social media banners with professional image filters</p>
+          <p className="text-gray-600">Create stunning social media banners with professional texture overlays</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -1682,7 +1990,7 @@ export default function SocialBannerCreator() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-4">
                       <Palette className="w-5 h-5" />
-                      <h3 className="font-semibold">Professional Image Filters</h3>
+                      <h3 className="font-semibold">Professional Image Filters & Textures</h3>
                     </div>
 
                     <div className="space-y-2">
@@ -1706,17 +2014,38 @@ export default function SocialBannerCreator() {
                     <div className="space-y-2">
                       <Label>Filter Presets</Label>
                       <div className="grid grid-cols-3 gap-2">
-                        {Object.keys(filterPresets).map((preset) => (
-                          <Button
-                            key={preset}
-                            variant={currentFilters.preset === preset ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => applyFilterPreset(preset)}
-                            className="capitalize text-xs"
-                          >
-                            {preset === "blackwhite" ? "B&W" : preset}
-                          </Button>
-                        ))}
+                        {Object.keys(filterPresets)
+                          .slice(0, 12)
+                          .map((preset) => (
+                            <Button
+                              key={preset}
+                              variant={currentFilters.preset === preset ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => applyFilterPreset(preset)}
+                              className="capitalize text-xs"
+                            >
+                              {preset === "blackwhite" ? "B&W" : preset.replace("_", " ")}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>🎨 Artistic Texture Presets</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.keys(filterPresets)
+                          .slice(12)
+                          .map((preset) => (
+                            <Button
+                              key={preset}
+                              variant={currentFilters.preset === preset ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => applyFilterPreset(preset)}
+                              className="capitalize text-xs"
+                            >
+                              {preset.replace("_", " ")}
+                            </Button>
+                          ))}
                       </div>
                     </div>
 
@@ -1812,69 +2141,131 @@ export default function SocialBannerCreator() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>HDR Effect: {currentFilters.hdr}%</Label>
-                        <Slider
-                          value={[currentFilters.hdr]}
-                          onValueChange={([value]) => updateFilter("hdr", value)}
-                          min={0}
-                          max={100}
-                          step={1}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500">Enhances dynamic range and color depth</p>
-                      </div>
+                      <div className="space-y-2 border-t pt-4">
+                        <Label>🎬 Advanced Effects</Label>
 
-                      <div className="space-y-2">
-                        <Label>Vignette: {currentFilters.vignette}%</Label>
-                        <Slider
-                          value={[currentFilters.vignette]}
-                          onValueChange={([value]) => updateFilter("vignette", value)}
-                          min={0}
-                          max={100}
-                          step={1}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500">Darkens edges for dramatic focus</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Film Grain: {currentFilters.filmGrain}%</Label>
-                        <Slider
-                          value={[currentFilters.filmGrain]}
-                          onValueChange={([value]) => updateFilter("filmGrain", value)}
-                          min={0}
-                          max={100}
-                          step={1}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500">Adds authentic film texture</p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button variant="outline" onClick={resetFilters} className="flex-1">
-                        Reset Filters
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 border-t pt-4">
-                    <Label>Filter Preview</Label>
-                    <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                      {bannerData[selectedImageForFilter as keyof BannerData] ? (
-                        <img
-                          src={(bannerData[selectedImageForFilter as keyof BannerData] as string) || "/placeholder.svg"}
-                          alt="Filter Preview"
-                          className="max-w-full max-h-full object-contain rounded"
-                          style={{ filter: getFilterString(currentFilters) }}
-                        />
-                      ) : (
-                        <div className="text-gray-400 text-center">
-                          <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-sm">Upload an image to see filter preview</p>
+                        <div className="space-y-2">
+                          <Label>HDR Effect: {currentFilters.hdr}%</Label>
+                          <Slider
+                            value={[currentFilters.hdr]}
+                            onValueChange={([value]) => updateFilter("hdr", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500">Enhances dynamic range and color depth</p>
                         </div>
-                      )}
+
+                        <div className="space-y-2">
+                          <Label>Vignette: {currentFilters.vignette}%</Label>
+                          <Slider
+                            value={[currentFilters.vignette]}
+                            onValueChange={([value]) => updateFilter("vignette", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500">Darkens edges for dramatic focus</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Film Grain: {currentFilters.filmGrain}%</Label>
+                          <Slider
+                            value={[currentFilters.filmGrain]}
+                            onValueChange={([value]) => updateFilter("filmGrain", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500">Adds authentic film texture</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 border-t pt-4">
+                        <Label>🎨 Texture Overlays</Label>
+
+                        <div className="space-y-2">
+                          <Label>Texture Type</Label>
+                          <Select
+                            value={currentFilters.textureType}
+                            onValueChange={(value) => updateFilter("textureType", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(textureTypes).map(([key, label]) => (
+                                <SelectItem key={key} value={key}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Texture Intensity: {currentFilters.textureIntensity}%</Label>
+                          <Slider
+                            value={[currentFilters.textureIntensity]}
+                            onValueChange={([value]) => updateFilter("textureIntensity", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500">Controls texture visibility and strength</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Blend Mode</Label>
+                          <Select
+                            value={currentFilters.textureBlendMode}
+                            onValueChange={(value) => updateFilter("textureBlendMode", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(blendModes).map(([key, label]) => (
+                                <SelectItem key={key} value={key}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500">How texture blends with the image</p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={resetFilters} className="flex-1">
+                          Reset All
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 border-t pt-4">
+                      <Label>Filter Preview</Label>
+                      <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                        {bannerData[selectedImageForFilter as keyof BannerData] ? (
+                          <img
+                            src={
+                              (bannerData[selectedImageForFilter as keyof BannerData] as string) || "/placeholder.svg"
+                            }
+                            alt="Filter Preview"
+                            className="max-w-full max-h-full object-contain rounded"
+                            style={{ filter: getFilterString(currentFilters) }}
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-center">
+                            <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                            <p className="text-sm">Upload an image to see filter preview</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2235,48 +2626,6 @@ export default function SocialBannerCreator() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="space-y-4 border-t pt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🎬</span>
-            <Label className="font-semibold">Hollywood Effects</Label>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <Button
-              variant={currentFilters.preset === "hdr" ? "default" : "outline"}
-              size="sm"
-              onClick={() => applyFilterPreset("hdr")}
-              className="text-xs"
-            >
-              🌟 HDR
-            </Button>
-            <Button
-              variant={currentFilters.preset === "cinematic" ? "default" : "outline"}
-              size="sm"
-              onClick={() => applyFilterPreset("cinematic")}
-              className="text-xs"
-            >
-              🎭 Cinematic
-            </Button>
-            <Button
-              variant={currentFilters.preset === "film" ? "default" : "outline"}
-              size="sm"
-              onClick={() => applyFilterPreset("film")}
-              className="text-xs"
-            >
-              🎞️ Film
-            </Button>
-            <Button
-              variant={currentFilters.preset === "portrait" ? "default" : "outline"}
-              size="sm"
-              onClick={() => applyFilterPreset("portrait")}
-              className="text-xs"
-            >
-              👤 Portrait
-            </Button>
-          </div>
         </div>
 
         {/* Hidden canvas for generation */}
