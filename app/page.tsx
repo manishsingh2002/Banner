@@ -8,7 +8,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Download, Upload, ImageIcon } from "lucide-react"
+import { Slider } from "@/components/ui/slider"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Download, Upload, ImageIcon, Palette, Sliders } from "lucide-react"
+
+interface ImageFilters {
+  brightness: number
+  contrast: number
+  saturation: number
+  blur: number
+  sepia: number
+  grayscale: number
+  hueRotate: number
+  hdr: number
+  vignette: number
+  filmGrain: number
+  preset: string
+}
 
 interface BannerData {
   shopName: string
@@ -34,6 +50,212 @@ interface BannerData {
   inspirationalText: string
   authorName: string
   dateText: string
+  imageFilters: {
+    productImage: ImageFilters
+    horizontalImage: ImageFilters
+    verticalImage1: ImageFilters
+    verticalImage2: ImageFilters
+    verticalImage3: ImageFilters
+    inspirationalImage1: ImageFilters
+    inspirationalImage2: ImageFilters
+  }
+}
+
+const defaultFilters: ImageFilters = {
+  brightness: 100,
+  contrast: 100,
+  saturation: 100,
+  blur: 0,
+  sepia: 0,
+  grayscale: 0,
+  hueRotate: 0,
+  hdr: 0,
+  vignette: 0,
+  filmGrain: 0,
+  preset: "none",
+}
+
+const filterPresets = {
+  none: {
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 0,
+    filmGrain: 0,
+  },
+  vintage: {
+    brightness: 110,
+    contrast: 120,
+    saturation: 80,
+    blur: 0,
+    sepia: 30,
+    grayscale: 0,
+    hueRotate: 10,
+    hdr: 0,
+    vignette: 20,
+    filmGrain: 15,
+  },
+  blackwhite: {
+    brightness: 105,
+    contrast: 110,
+    saturation: 0,
+    blur: 0,
+    sepia: 0,
+    grayscale: 100,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 15,
+    filmGrain: 0,
+  },
+  sepia: {
+    brightness: 110,
+    contrast: 90,
+    saturation: 80,
+    blur: 0,
+    sepia: 80,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 25,
+    filmGrain: 10,
+  },
+  dramatic: {
+    brightness: 90,
+    contrast: 150,
+    saturation: 120,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 30,
+    vignette: 35,
+    filmGrain: 0,
+  },
+  soft: {
+    brightness: 115,
+    contrast: 85,
+    saturation: 90,
+    blur: 1,
+    sepia: 10,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 10,
+    filmGrain: 5,
+  },
+  cool: {
+    brightness: 105,
+    contrast: 110,
+    saturation: 110,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 200,
+    hdr: 15,
+    vignette: 0,
+    filmGrain: 0,
+  },
+  warm: {
+    brightness: 110,
+    contrast: 105,
+    saturation: 115,
+    blur: 0,
+    sepia: 20,
+    grayscale: 0,
+    hueRotate: 30,
+    hdr: 10,
+    vignette: 15,
+    filmGrain: 8,
+  },
+  neon: {
+    brightness: 120,
+    contrast: 140,
+    saturation: 150,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 280,
+    hdr: 25,
+    vignette: 0,
+    filmGrain: 0,
+  },
+  dreamy: {
+    brightness: 120,
+    contrast: 80,
+    saturation: 110,
+    blur: 2,
+    sepia: 15,
+    grayscale: 0,
+    hueRotate: 320,
+    hdr: 0,
+    vignette: 20,
+    filmGrain: 12,
+  },
+  hdr: {
+    brightness: 110,
+    contrast: 130,
+    saturation: 125,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 50,
+    vignette: 10,
+    filmGrain: 0,
+  },
+  cinematic: {
+    brightness: 95,
+    contrast: 125,
+    saturation: 110,
+    blur: 0,
+    sepia: 5,
+    grayscale: 0,
+    hueRotate: 15,
+    hdr: 20,
+    vignette: 40,
+    filmGrain: 20,
+  },
+  film: {
+    brightness: 105,
+    contrast: 115,
+    saturation: 95,
+    blur: 0,
+    sepia: 25,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 0,
+    vignette: 30,
+    filmGrain: 35,
+  },
+  portrait: {
+    brightness: 108,
+    contrast: 110,
+    saturation: 105,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 15,
+    vignette: 25,
+    filmGrain: 5,
+  },
+  landscape: {
+    brightness: 105,
+    contrast: 120,
+    saturation: 115,
+    blur: 0,
+    sepia: 0,
+    grayscale: 0,
+    hueRotate: 0,
+    hdr: 35,
+    vignette: 15,
+    filmGrain: 0,
+  },
 }
 
 const themes = {
@@ -109,8 +331,18 @@ export default function SocialBannerCreator() {
     inspirationalText: "",
     authorName: "",
     dateText: "",
+    imageFilters: {
+      productImage: { ...defaultFilters },
+      horizontalImage: { ...defaultFilters },
+      verticalImage1: { ...defaultFilters },
+      verticalImage2: { ...defaultFilters },
+      verticalImage3: { ...defaultFilters },
+      inspirationalImage1: { ...defaultFilters },
+      inspirationalImage2: { ...defaultFilters },
+    },
   })
 
+  const [selectedImageForFilter, setSelectedImageForFilter] = useState<string>("productImage")
   const [templates, setTemplates] = useState([])
   const [isExporting, setIsExporting] = useState(false)
   const [exportFormats, setExportFormats] = useState(["png"])
@@ -192,6 +424,109 @@ export default function SocialBannerCreator() {
         }))
       }
       reader.readAsDataURL(file)
+    }
+  }
+
+  const applyFilterPreset = (preset: string) => {
+    const presetFilters = filterPresets[preset as keyof typeof filterPresets]
+    setBannerData((prev) => ({
+      ...prev,
+      imageFilters: {
+        ...prev.imageFilters,
+        [selectedImageForFilter]: {
+          ...presetFilters,
+          preset,
+        },
+      },
+    }))
+  }
+
+  const updateFilter = (filterName: string, value: number) => {
+    setBannerData((prev) => ({
+      ...prev,
+      imageFilters: {
+        ...prev.imageFilters,
+        [selectedImageForFilter]: {
+          ...prev.imageFilters[selectedImageForFilter as keyof typeof prev.imageFilters],
+          [filterName]: value,
+          preset: "custom",
+        },
+      },
+    }))
+  }
+
+  const resetFilters = () => {
+    setBannerData((prev) => ({
+      ...prev,
+      imageFilters: {
+        ...prev.imageFilters,
+        [selectedImageForFilter]: { ...defaultFilters },
+      },
+    }))
+  }
+
+  const getFilterString = (filters: ImageFilters): string => {
+    let filterString = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px) sepia(${filters.sepia}%) grayscale(${filters.grayscale}%) hue-rotate(${filters.hueRotate}deg)`
+
+    // HDR simulation through enhanced contrast and saturation
+    if (filters.hdr > 0) {
+      const hdrBoost = 1 + filters.hdr / 100
+      filterString += ` contrast(${Math.min(200, filters.contrast * hdrBoost)}%) saturate(${Math.min(200, filters.saturation * hdrBoost)}%)`
+    }
+
+    return filterString
+  }
+
+  const applyImageFilter = (
+    ctx: CanvasRenderingContext2D,
+    filters: ImageFilters,
+    canvas?: HTMLCanvasElement,
+    x?: number,
+    y?: number,
+    width?: number,
+    height?: number,
+  ) => {
+    // Apply basic CSS filters
+    ctx.filter = getFilterString(filters)
+
+    // For advanced effects, we'll apply them after drawing the image
+    return { needsAdvancedFilters: filters.vignette > 0 || filters.filmGrain > 0, filters }
+  }
+
+  const applyAdvancedFilters = (
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    filters: ImageFilters,
+    imageData?: ImageData,
+  ) => {
+    // Apply vignette effect
+    if (filters.vignette > 0) {
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY)
+
+      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxDistance)
+      gradient.addColorStop(0, `rgba(0, 0, 0, 0)`)
+      gradient.addColorStop(0.6, `rgba(0, 0, 0, 0)`)
+      gradient.addColorStop(1, `rgba(0, 0, 0, ${filters.vignette / 100})`)
+
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
+    // Apply film grain effect
+    if (filters.filmGrain > 0 && imageData) {
+      const data = imageData.data
+      const intensity = filters.filmGrain / 100
+
+      for (let i = 0; i < data.length; i += 4) {
+        const noise = (Math.random() - 0.5) * intensity * 255
+        data[i] = Math.max(0, Math.min(255, data[i] + noise)) // Red
+        data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)) // Green
+        data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)) // Blue
+      }
+
+      ctx.putImageData(imageData, 0, 0)
     }
   }
 
@@ -394,7 +729,7 @@ export default function SocialBannerCreator() {
       ctx.textAlign = "center"
       ctx.fillText("Self Reminder", 140 * scale, cardY + 55 * scale)
 
-      // Main image
+      // Main image with filters
       if (bannerData.inspirationalImage1) {
         const img = new Image()
         img.crossOrigin = "anonymous"
@@ -408,7 +743,17 @@ export default function SocialBannerCreator() {
           ctx.beginPath()
           ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 15 * scale)
           ctx.clip()
+
+          // Apply basic filters
+          const filterResult = applyImageFilter(ctx, bannerData.imageFilters.inspirationalImage1)
           ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight)
+
+          // Apply advanced filters if needed
+          if (filterResult.needsAdvancedFilters) {
+            const imageData = ctx.getImageData(imageX, imageY, imageWidth, imageHeight)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+          }
+
           ctx.restore()
 
           drawInspirationalText()
@@ -590,7 +935,17 @@ export default function SocialBannerCreator() {
           ctx.beginPath()
           ctx.roundRect(mainImageX, mainImageY, mainImageWidth, mainImageHeight, 15 * scale)
           ctx.clip()
+
+          // Apply basic filters
+          const filterResult = applyImageFilter(ctx, bannerData.imageFilters.horizontalImage)
           ctx.drawImage(img, mainImageX, mainImageY, mainImageWidth, mainImageHeight)
+
+          // Apply advanced filters if needed
+          if (filterResult.needsAdvancedFilters) {
+            const imageData = ctx.getImageData(mainImageX, mainImageY, mainImageWidth, mainImageHeight)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+          }
+
           ctx.restore()
 
           // Add premium border
@@ -632,6 +987,11 @@ export default function SocialBannerCreator() {
         const verticalImageWidth = (mainImageWidth - 20 * scale) / 3
 
         const verticalImages = [bannerData.verticalImage1, bannerData.verticalImage2, bannerData.verticalImage3]
+        const verticalFilters = [
+          bannerData.imageFilters.verticalImage1,
+          bannerData.imageFilters.verticalImage2,
+          bannerData.imageFilters.verticalImage3,
+        ]
 
         verticalImages.forEach((imageSrc, index) => {
           const imageX = mainImageX + index * (verticalImageWidth + 10 * scale)
@@ -644,7 +1004,17 @@ export default function SocialBannerCreator() {
               ctx.beginPath()
               ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
               ctx.clip()
+
+              // Apply basic filters
+              const filterResult = applyImageFilter(ctx, verticalFilters[index])
               ctx.drawImage(img, imageX, verticalImagesY, verticalImageWidth, verticalImageHeight)
+
+              // Apply advanced filters if needed
+              if (filterResult.needsAdvancedFilters) {
+                const imageData = ctx.getImageData(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight)
+                applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+              }
+
               ctx.restore()
 
               // Add premium border
@@ -794,7 +1164,7 @@ export default function SocialBannerCreator() {
         ctx.fillText(plusText, frameX + frameWidth - 30 * scale, frameY + 40 * scale + i * 25 * scale)
       }
 
-      // Draw product image
+      // Draw product image with filters
       if (bannerData.productImage) {
         const img = new Image()
         img.crossOrigin = "anonymous"
@@ -809,7 +1179,17 @@ export default function SocialBannerCreator() {
           ctx.beginPath()
           ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 10 * scale)
           ctx.clip()
+
+          // Apply basic filters
+          const filterResult = applyImageFilter(ctx, bannerData.imageFilters.productImage)
           ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight)
+
+          // Apply advanced filters if needed
+          if (filterResult.needsAdvancedFilters) {
+            const imageData = ctx.getImageData(imageX, imageY, imageWidth, imageHeight)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+          }
+
           ctx.restore()
 
           drawColorPalette()
@@ -937,7 +1317,17 @@ export default function SocialBannerCreator() {
           const radius = 40 * scale
           ctx.roundRect(imageX, imageY, imageSize, imageSize, radius)
           ctx.clip()
+
+          // Apply basic filters
+          const filterResult = applyImageFilter(ctx, bannerData.imageFilters.productImage)
           ctx.drawImage(img, imageX, imageY, imageSize, imageSize)
+
+          // Apply advanced filters if needed
+          if (filterResult.needsAdvancedFilters) {
+            const imageData = ctx.getImageData(imageX, imageY, imageSize, imageSize)
+            applyAdvancedFilters(ctx, canvas, filterResult.filters, imageData)
+          }
+
           ctx.restore()
 
           drawOriginalText()
@@ -963,6 +1353,10 @@ export default function SocialBannerCreator() {
         setIsGenerating(false)
       }
     }
+
+    // Apply advanced filters after drawing the image
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    applyAdvancedFilters(ctx, canvas, bannerData.imageFilters.productImage, imageData)
   }
 
   const downloadBanner = (format = "png") => {
@@ -1019,12 +1413,14 @@ export default function SocialBannerCreator() {
     }
   }, [bannerData])
 
+  const currentFilters = bannerData.imageFilters[selectedImageForFilter as keyof typeof bannerData.imageFilters]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Social Share Banner Creator</h1>
-          <p className="text-gray-600">Create stunning social media banners for your products</p>
+          <p className="text-gray-600">Create stunning social media banners with professional image filters</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -1037,240 +1433,452 @@ export default function SocialBannerCreator() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="shopName">Shop Name</Label>
-                <Input
-                  id="shopName"
-                  placeholder="Enter your shop name"
-                  value={bannerData.shopName}
-                  onChange={(e) => setBannerData((prev) => ({ ...prev, shopName: e.target.value }))}
-                />
-              </div>
+              <Tabs defaultValue="content" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="content">Content</TabsTrigger>
+                  <TabsTrigger value="filters">🎨 Filters</TabsTrigger>
+                </TabsList>
 
-              <div className="space-y-2">
-                <Label htmlFor="productName">Product Name</Label>
-                <Input
-                  id="productName"
-                  placeholder="Enter product name"
-                  value={bannerData.productName}
-                  onChange={(e) => setBannerData((prev) => ({ ...prev, productName: e.target.value }))}
-                />
-              </div>
+                <TabsContent value="content" className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="shopName">Shop Name</Label>
+                    <Input
+                      id="shopName"
+                      placeholder="Enter your shop name"
+                      value={bannerData.shopName}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, shopName: e.target.value }))}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Product Description</Label>
-                <Input
-                  id="description"
-                  placeholder="Brief description of your product"
-                  value={bannerData.description}
-                  onChange={(e) => setBannerData((prev) => ({ ...prev, description: e.target.value }))}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="productName">Product Name</Label>
+                    <Input
+                      id="productName"
+                      placeholder="Enter product name"
+                      value={bannerData.productName}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, productName: e.target.value }))}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  placeholder="Enter price (without currency symbol)"
-                  value={bannerData.price}
-                  onChange={(e) => setBannerData((prev) => ({ ...prev, price: e.target.value }))}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Product Description</Label>
+                    <Input
+                      id="description"
+                      placeholder="Brief description of your product"
+                      value={bannerData.description}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, description: e.target.value }))}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Product Image</Label>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload Image
-                  </Button>
-                  {bannerData.productImage && <span className="text-sm text-green-600">✓ Image uploaded</span>}
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price</Label>
+                    <Input
+                      id="price"
+                      placeholder="Enter price (without currency symbol)"
+                      value={bannerData.price}
+                      onChange={(e) => setBannerData((prev) => ({ ...prev, price: e.target.value }))}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Main Horizontal Image</Label>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => horizontalImageRef.current?.click()}
-                    className="flex items-center gap-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload Horizontal
-                  </Button>
-                  {bannerData.horizontalImage && <span className="text-sm text-green-600">✓ Uploaded</span>}
-                </div>
-                <input
-                  ref={horizontalImageRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleHorizontalImageUpload}
-                  className="hidden"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Vertical Images (3 images)</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 2, 3].map((num) => (
-                    <div key={num} className="space-y-2">
+                  <div className="space-y-2">
+                    <Label>Product Image</Label>
+                    <div className="flex items-center gap-4">
                       <Button
                         variant="outline"
-                        size="sm"
-                        onClick={() => verticalImageRefs.current[num - 1]?.click()}
-                        className="w-full"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2"
                       >
-                        <Upload className="w-3 h-3 mr-1" />
-                        {num}
+                        <Upload className="w-4 h-4" />
+                        Upload Image
                       </Button>
-                      {bannerData[`verticalImage${num}`] && (
-                        <span className="text-xs text-green-600 block text-center">✓</span>
+                      {bannerData.productImage && <span className="text-sm text-green-600">✓ Image uploaded</span>}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Main Horizontal Image</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => horizontalImageRef.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Horizontal
+                      </Button>
+                      {bannerData.horizontalImage && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                    </div>
+                    <input
+                      ref={horizontalImageRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleHorizontalImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Vertical Images (3 images)</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[1, 2, 3].map((num) => (
+                        <div key={num} className="space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => verticalImageRefs.current[num - 1]?.click()}
+                            className="w-full"
+                          >
+                            <Upload className="w-3 h-3 mr-1" />
+                            {num}
+                          </Button>
+                          {bannerData[`verticalImage${num}`] && (
+                            <span className="text-xs text-green-600 block text-center">✓</span>
+                          )}
+                          <input
+                            ref={(el) => (verticalImageRefs.current[num - 1] = el)}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleVerticalImageUpload(e, num as 1 | 2 | 3)}
+                            className="hidden"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Design Theme</Label>
+                    <Select
+                      value={bannerData.designTheme}
+                      onValueChange={(
+                        value:
+                          | "social_gallery"
+                          | "instagram_mood"
+                          | "minimalist"
+                          | "vibrant"
+                          | "elegant_cursive"
+                          | "inspirational_vibes",
+                      ) => setBannerData((prev) => ({ ...prev, designTheme: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="social_gallery">Social Gallery Post</SelectItem>
+                        <SelectItem value="instagram_mood">Instagram Mood Board</SelectItem>
+                        <SelectItem value="inspirational_vibes">Inspirational Vibes</SelectItem>
+                        <SelectItem value="elegant_cursive">Elegant Cursive Accent</SelectItem>
+                        <SelectItem value="minimalist">Minimalist Chic</SelectItem>
+                        <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {bannerData.designTheme === "inspirational_vibes" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="authorName">Author Name</Label>
+                        <Input
+                          id="authorName"
+                          placeholder="Enter author name"
+                          value={bannerData.authorName}
+                          onChange={(e) => setBannerData((prev) => ({ ...prev, authorName: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="inspirationalText">Inspirational Text</Label>
+                        <Input
+                          id="inspirationalText"
+                          placeholder="Enter inspirational message"
+                          value={bannerData.inspirationalText}
+                          onChange={(e) => setBannerData((prev) => ({ ...prev, inspirationalText: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="dateText">Date Text</Label>
+                        <Input
+                          id="dateText"
+                          placeholder="Enter month (e.g., January)"
+                          value={bannerData.dateText}
+                          onChange={(e) => setBannerData((prev) => ({ ...prev, dateText: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Main Inspirational Image</Label>
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => inspirationalImage1Ref.current?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Upload Image 1
+                          </Button>
+                          {bannerData.inspirationalImage1 && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                        </div>
+                        <input
+                          ref={inspirationalImage1Ref}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleInspirationalImage1Upload}
+                          className="hidden"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Secondary Image (Optional)</Label>
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => inspirationalImage2Ref.current?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Upload Image 2
+                          </Button>
+                          {bannerData.inspirationalImage2 && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                        </div>
+                        <input
+                          ref={inspirationalImage2Ref}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleInspirationalImage2Upload}
+                          className="hidden"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Download Resolution</Label>
+                    <Select
+                      value={bannerData.resolution}
+                      onValueChange={(value: "1080" | "4k") =>
+                        setBannerData((prev) => ({ ...prev, resolution: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1080">Standard (1080x1920)</SelectItem>
+                        <SelectItem value="4k">4K (2160x3840)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="filters" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Palette className="w-5 h-5" />
+                      <h3 className="font-semibold">Professional Image Filters</h3>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Select Image to Edit</Label>
+                      <Select value={selectedImageForFilter} onValueChange={setSelectedImageForFilter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="productImage">Product Image</SelectItem>
+                          <SelectItem value="horizontalImage">Horizontal Image</SelectItem>
+                          <SelectItem value="verticalImage1">Vertical Image 1</SelectItem>
+                          <SelectItem value="verticalImage2">Vertical Image 2</SelectItem>
+                          <SelectItem value="verticalImage3">Vertical Image 3</SelectItem>
+                          <SelectItem value="inspirationalImage1">Inspirational Image 1</SelectItem>
+                          <SelectItem value="inspirationalImage2">Inspirational Image 2</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Filter Presets</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {Object.keys(filterPresets).map((preset) => (
+                          <Button
+                            key={preset}
+                            variant={currentFilters.preset === preset ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => applyFilterPreset(preset)}
+                            className="capitalize text-xs"
+                          >
+                            {preset === "blackwhite" ? "B&W" : preset}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 border-t pt-4">
+                      <div className="flex items-center gap-2">
+                        <Sliders className="w-4 h-4" />
+                        <Label>Custom Adjustments</Label>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Brightness: {currentFilters.brightness}%</Label>
+                          <Slider
+                            value={[currentFilters.brightness]}
+                            onValueChange={([value]) => updateFilter("brightness", value)}
+                            min={0}
+                            max={200}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Contrast: {currentFilters.contrast}%</Label>
+                          <Slider
+                            value={[currentFilters.contrast]}
+                            onValueChange={([value]) => updateFilter("contrast", value)}
+                            min={0}
+                            max={200}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Saturation: {currentFilters.saturation}%</Label>
+                          <Slider
+                            value={[currentFilters.saturation]}
+                            onValueChange={([value]) => updateFilter("saturation", value)}
+                            min={0}
+                            max={200}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Blur: {currentFilters.blur}px</Label>
+                          <Slider
+                            value={[currentFilters.blur]}
+                            onValueChange={([value]) => updateFilter("blur", value)}
+                            min={0}
+                            max={10}
+                            step={0.1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Sepia: {currentFilters.sepia}%</Label>
+                          <Slider
+                            value={[currentFilters.sepia]}
+                            onValueChange={([value]) => updateFilter("sepia", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Grayscale: {currentFilters.grayscale}%</Label>
+                          <Slider
+                            value={[currentFilters.grayscale]}
+                            onValueChange={([value]) => updateFilter("grayscale", value)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Hue Rotate: {currentFilters.hueRotate}°</Label>
+                          <Slider
+                            value={[currentFilters.hueRotate]}
+                            onValueChange={([value]) => updateFilter("hueRotate", value)}
+                            min={0}
+                            max={360}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>HDR Effect: {currentFilters.hdr}%</Label>
+                        <Slider
+                          value={[currentFilters.hdr]}
+                          onValueChange={([value]) => updateFilter("hdr", value)}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                        <p className="text-xs text-gray-500">Enhances dynamic range and color depth</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Vignette: {currentFilters.vignette}%</Label>
+                        <Slider
+                          value={[currentFilters.vignette]}
+                          onValueChange={([value]) => updateFilter("vignette", value)}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                        <p className="text-xs text-gray-500">Darkens edges for dramatic focus</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Film Grain: {currentFilters.filmGrain}%</Label>
+                        <Slider
+                          value={[currentFilters.filmGrain]}
+                          onValueChange={([value]) => updateFilter("filmGrain", value)}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                        <p className="text-xs text-gray-500">Adds authentic film texture</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={resetFilters} className="flex-1">
+                        Reset Filters
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-t pt-4">
+                    <Label>Filter Preview</Label>
+                    <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                      {bannerData[selectedImageForFilter as keyof BannerData] ? (
+                        <img
+                          src={(bannerData[selectedImageForFilter as keyof BannerData] as string) || "/placeholder.svg"}
+                          alt="Filter Preview"
+                          className="max-w-full max-h-full object-contain rounded"
+                          style={{ filter: getFilterString(currentFilters) }}
+                        />
+                      ) : (
+                        <div className="text-gray-400 text-center">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                          <p className="text-sm">Upload an image to see filter preview</p>
+                        </div>
                       )}
-                      <input
-                        ref={(el) => (verticalImageRefs.current[num - 1] = el)}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleVerticalImageUpload(e, num as 1 | 2 | 3)}
-                        className="hidden"
-                      />
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Design Theme</Label>
-                <Select
-                  value={bannerData.designTheme}
-                  onValueChange={(
-                    value:
-                      | "social_gallery"
-                      | "instagram_mood"
-                      | "minimalist"
-                      | "vibrant"
-                      | "elegant_cursive"
-                      | "inspirational_vibes",
-                  ) => setBannerData((prev) => ({ ...prev, designTheme: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="social_gallery">Social Gallery Post</SelectItem>
-                    <SelectItem value="instagram_mood">Instagram Mood Board</SelectItem>
-                    <SelectItem value="inspirational_vibes">Inspirational Vibes</SelectItem>
-                    <SelectItem value="elegant_cursive">Elegant Cursive Accent</SelectItem>
-                    <SelectItem value="minimalist">Minimalist Chic</SelectItem>
-                    <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {bannerData.designTheme === "inspirational_vibes" && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="authorName">Author Name</Label>
-                    <Input
-                      id="authorName"
-                      placeholder="Enter author name"
-                      value={bannerData.authorName}
-                      onChange={(e) => setBannerData((prev) => ({ ...prev, authorName: e.target.value }))}
-                    />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="inspirationalText">Inspirational Text</Label>
-                    <Input
-                      id="inspirationalText"
-                      placeholder="Enter inspirational message"
-                      value={bannerData.inspirationalText}
-                      onChange={(e) => setBannerData((prev) => ({ ...prev, inspirationalText: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="dateText">Date Text</Label>
-                    <Input
-                      id="dateText"
-                      placeholder="Enter month (e.g., January)"
-                      value={bannerData.dateText}
-                      onChange={(e) => setBannerData((prev) => ({ ...prev, dateText: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Main Inspirational Image</Label>
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => inspirationalImage1Ref.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Image 1
-                      </Button>
-                      {bannerData.inspirationalImage1 && <span className="text-sm text-green-600">✓ Uploaded</span>}
-                    </div>
-                    <input
-                      ref={inspirationalImage1Ref}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleInspirationalImage1Upload}
-                      className="hidden"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Secondary Image (Optional)</Label>
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => inspirationalImage2Ref.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Image 2
-                      </Button>
-                      {bannerData.inspirationalImage2 && <span className="text-sm text-green-600">✓ Uploaded</span>}
-                    </div>
-                    <input
-                      ref={inspirationalImage2Ref}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleInspirationalImage2Upload}
-                      className="hidden"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="space-y-2">
-                <Label>Download Resolution</Label>
-                <Select
-                  value={bannerData.resolution}
-                  onValueChange={(value: "1080" | "4k") => setBannerData((prev) => ({ ...prev, resolution: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1080">Standard (1080x1920)</SelectItem>
-                    <SelectItem value="4k">4K (2160x3840)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="space-y-4 border-t pt-6">
                 <h3 className="font-semibold text-lg">🚀 AI-Powered Features</h3>
@@ -1378,6 +1986,7 @@ export default function SocialBannerCreator() {
                               src={bannerData.productImage || "/placeholder.svg"}
                               alt="Product"
                               className="w-full h-full object-cover"
+                              style={{ filter: getFilterString(bannerData.imageFilters.productImage) }}
                             />
                           </div>
                         ) : (
@@ -1433,6 +2042,7 @@ export default function SocialBannerCreator() {
                               src={bannerData.horizontalImage || "/placeholder.svg"}
                               alt="Horizontal"
                               className="w-full h-full object-cover"
+                              style={{ filter: getFilterString(bannerData.imageFilters.horizontalImage) }}
                             />
                           </div>
                         ) : (
@@ -1451,6 +2061,13 @@ export default function SocialBannerCreator() {
                                     src={image || "/placeholder.svg"}
                                     alt={`Vertical ${index + 1}`}
                                     className="w-full h-full object-cover border border-slate-200"
+                                    style={{
+                                      filter: getFilterString(
+                                        bannerData.imageFilters[
+                                          `verticalImage${index + 1}` as keyof typeof bannerData.imageFilters
+                                        ],
+                                      ),
+                                    }}
                                   />
                                 ) : (
                                   <div className="w-full h-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center">
@@ -1485,6 +2102,68 @@ export default function SocialBannerCreator() {
                         </div>
                       </div>
                     </div>
+                  ) : bannerData.designTheme === "inspirational_vibes" ? (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 p-2">
+                      <div className="h-2/5 p-4 text-white">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="space-y-2">
+                            <div className="w-16 h-6 bg-white rounded"></div>
+                            <div className="flex gap-2">
+                              {["#8bb3c7", "#d4a574", "#c7b299"].map((color, i) => (
+                                <div key={i} className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+                              ))}
+                            </div>
+                          </div>
+                          {bannerData.authorName && <p className="text-sm">{bannerData.authorName}</p>}
+                        </div>
+                        <h1 className="text-3xl font-bold mb-2">{bannerData.productName || "Sunday Vibes"}</h1>
+                        <div className="space-y-1 text-sm">
+                          <p>Color</p>
+                          <p>Font</p>
+                          <p>Poppins</p>
+                        </div>
+                        {bannerData.shopName && (
+                          <p className="text-xs opacity-80 mt-4">Archived By @{bannerData.shopName}</p>
+                        )}
+                      </div>
+                      <div className="bg-white rounded-lg p-3 h-3/5 flex flex-col">
+                        <div className="bg-blue-300 text-white px-3 py-1 rounded-full text-xs w-fit mb-3">
+                          Self Reminder
+                        </div>
+                        {bannerData.inspirationalImage1 ? (
+                          <div className="flex-1 rounded overflow-hidden mb-3">
+                            <img
+                              src={bannerData.inspirationalImage1 || "/placeholder.svg"}
+                              alt="Inspirational"
+                              className="w-full h-full object-cover"
+                              style={{ filter: getFilterString(bannerData.imageFilters.inspirationalImage1) }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex-1 bg-gray-200 rounded flex items-center justify-center mb-3">
+                            <span className="text-4xl">📷</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-start text-sm">
+                          <div className="flex-1">
+                            <div className="flex justify-between font-bold mb-2">
+                              <span>Page</span>
+                              <span>Today</span>
+                            </div>
+                            <div className="w-1/3 h-px bg-gray-400 mx-auto mb-2"></div>
+                            {bannerData.inspirationalText && (
+                              <p className="text-xs text-gray-600 leading-relaxed">{bannerData.inspirationalText}</p>
+                            )}
+                          </div>
+                          <div className="ml-4 text-center">
+                            <div className="bg-gray-500 text-white px-3 py-2 rounded text-lg font-bold">08</div>
+                            <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs mt-1">
+                              {bannerData.dateText || "January"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     // Original preview for other themes
                     <div
@@ -1504,6 +2183,7 @@ export default function SocialBannerCreator() {
                             src={bannerData.productImage || "/placeholder.svg"}
                             alt="Product"
                             className="w-full h-full object-cover"
+                            style={{ filter: getFilterString(bannerData.imageFilters.productImage) }}
                           />
                         </div>
                       ) : (
@@ -1555,6 +2235,48 @@ export default function SocialBannerCreator() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="space-y-4 border-t pt-4">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎬</span>
+            <Label className="font-semibold">Hollywood Effects</Label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <Button
+              variant={currentFilters.preset === "hdr" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyFilterPreset("hdr")}
+              className="text-xs"
+            >
+              🌟 HDR
+            </Button>
+            <Button
+              variant={currentFilters.preset === "cinematic" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyFilterPreset("cinematic")}
+              className="text-xs"
+            >
+              🎭 Cinematic
+            </Button>
+            <Button
+              variant={currentFilters.preset === "film" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyFilterPreset("film")}
+              className="text-xs"
+            >
+              🎞️ Film
+            </Button>
+            <Button
+              variant={currentFilters.preset === "portrait" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyFilterPreset("portrait")}
+              className="text-xs"
+            >
+              👤 Portrait
+            </Button>
+          </div>
         </div>
 
         {/* Hidden canvas for generation */}
