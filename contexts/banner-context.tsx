@@ -55,6 +55,7 @@ export interface BannerData {
     | "vibrant"
     | "elegant_cursive"
     | "inspirational_vibes"
+    | "maritime_adventure"
   description: string
   photographer: string
   price: string
@@ -156,8 +157,113 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const generateBanner = async () => {
-    // Implementation will be moved to a separate utility
-    console.log("Generate banner called")
+    if (!canvasRef.current) return
+
+    setIsGenerating(true)
+    try {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
+
+      // Set canvas dimensions based on resolution
+      const width = bannerData.resolution === "4k" ? 3840 : 1920
+      const height = bannerData.resolution === "4k" ? 2160 : 1080
+
+      canvas.width = width
+      canvas.height = height
+
+      // Clear canvas
+      ctx.fillStyle = "#ffffff"
+      ctx.fillRect(0, 0, width, height)
+
+      // Generate banner based on theme
+      await renderBannerTheme(ctx, width, height)
+    } catch (error) {
+      console.error("Error generating banner:", error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const renderBannerTheme = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    switch (bannerData.designTheme) {
+      case "maritime_adventure":
+        await renderMaritimeAdventure(ctx, width, height)
+        break
+      default:
+        await renderDefaultTheme(ctx, width, height)
+        break
+    }
+  }
+
+  const renderMaritimeAdventure = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, height)
+    gradient.addColorStop(0, "#4A90A4")
+    gradient.addColorStop(1, "#2C5F6F")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Draw images if available
+    if (bannerData.horizontalImage && loadedImages[bannerData.horizontalImage]) {
+      const img = loadedImages[bannerData.horizontalImage]
+      ctx.drawImage(img, width * 0.1, height * 0.1, width * 0.8, height * 0.4)
+    }
+
+    if (bannerData.verticalImage1 && loadedImages[bannerData.verticalImage1]) {
+      const img = loadedImages[bannerData.verticalImage1]
+      ctx.drawImage(img, width * 0.1, height * 0.55, width * 0.8, height * 0.3)
+    }
+
+    // Text styling
+    ctx.fillStyle = "#FFFFFF"
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    // Main title
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width * 0.7, height * 0.75)
+    }
+
+    // Subtitle
+    ctx.font = `${bannerData.textStyles.productNameSize}px ${bannerData.textStyles.productNameFont}`
+    if (bannerData.productName) {
+      ctx.fillText(bannerData.productName, width * 0.7, height * 0.82)
+    }
+
+    // Description
+    ctx.font = `${bannerData.textStyles.descriptionSize}px ${bannerData.textStyles.descriptionFont}`
+    if (bannerData.description) {
+      const words = bannerData.description.split(" ")
+      let line = ""
+      let y = height * 0.9
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " "
+        const metrics = ctx.measureText(testLine)
+        const testWidth = metrics.width
+
+        if (testWidth > width * 0.4 && n > 0) {
+          ctx.fillText(line, width * 0.7, y)
+          line = words[n] + " "
+          y += bannerData.textStyles.descriptionSize + 5
+        } else {
+          line = testLine
+        }
+      }
+      ctx.fillText(line, width * 0.7, y)
+    }
+  }
+
+  const renderDefaultTheme = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Simple default rendering
+    ctx.fillStyle = "#f0f0f0"
+    ctx.fillRect(0, 0, width, height)
+
+    ctx.fillStyle = "#333333"
+    ctx.font = "48px Inter"
+    ctx.textAlign = "center"
+    ctx.fillText("Social Banner", width / 2, height / 2)
   }
 
   const downloadBanner = (format = "png") => {

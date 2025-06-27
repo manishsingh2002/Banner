@@ -1,28 +1,33 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import "./globals.css"
 import { BannerProvider } from "@/contexts/banner-context"
 import { Navigation } from "@/components/navigation"
+import { Toaster } from "@/components/ui/toaster"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Social Banner Creator",
-  description: "Create stunning social media banners with professional filters",
-  generator: "v0.dev",
+  description: "Create stunning social media banners with advanced filters and customization",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>
+      <body className={inter.className}>
         <BannerProvider>
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+          <div className="min-h-screen bg-gray-50">
             <Navigation />
             <main className="container mx-auto px-4 py-8">{children}</main>
           </div>
+          <Toaster />
         </BannerProvider>
       </body>
     </html>

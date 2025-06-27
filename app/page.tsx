@@ -1,5 +1,7 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
+
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
@@ -11,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, Upload, ImageIcon, Palette, Sliders } from "lucide-react"
-import { Edit, Layers, Type, TrendingUp, Star } from "lucide-react"
+import { Edit, Layers, Type, TrendingUp, Anchor, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useBanner } from "@/contexts/banner-context"
 
@@ -484,6 +486,66 @@ const themes = {
   },
 }
 
+const features = [
+  {
+    name: "Banner Editor",
+    description: "Create and customize social media banners with drag-and-drop interface",
+    icon: Edit,
+    href: "/editor",
+    color: "bg-blue-500",
+  },
+  {
+    name: "Template Gallery",
+    description: "Choose from professionally designed templates",
+    icon: Layers,
+    href: "/templates",
+    color: "bg-green-500",
+  },
+  {
+    name: "Maritime Adventure",
+    description: "Specialized template for travel and adventure content",
+    icon: Anchor,
+    href: "/maritime",
+    color: "bg-teal-500",
+    isNew: true,
+  },
+  {
+    name: "Advanced Filters",
+    description: "Apply Hollywood-grade filters and effects",
+    icon: Palette,
+    href: "/filters",
+    color: "bg-purple-500",
+  },
+  {
+    name: "Typography",
+    description: "Customize fonts, sizes, and text styling",
+    icon: Type,
+    href: "/typography",
+    color: "bg-orange-500",
+  },
+  {
+    name: "Brand Kit",
+    description: "Manage your brand colors, logos, and assets",
+    icon: ImageIcon,
+    href: "/brand-kit",
+    color: "bg-pink-500",
+  },
+  {
+    name: "Export Options",
+    description: "Download in multiple formats and resolutions",
+    icon: Download,
+    href: "/export",
+    color: "bg-indigo-500",
+  },
+]
+
+const stats = [
+  { name: "Templates Available", value: "50+" },
+  { name: "Filter Presets", value: "25+" },
+  { name: "Export Formats", value: "4" },
+  { name: "Resolution Options", value: "2" },
+]
+
 export default function SocialBannerCreator() {
   const { bannerData } = useBanner()
 
@@ -518,7 +580,7 @@ export default function SocialBannerCreator() {
     },
   ]
 
-  const stats = [
+  const stats2 = [
     { label: "Projects Created", value: "12", icon: TrendingUp },
     { label: "Templates Used", value: "8", icon: Layers },
     { label: "Exports Made", value: "24", icon: Download },
@@ -1900,145 +1962,92 @@ export default function SocialBannerCreator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Social Share Banner Creator</h1>
-          <p className="text-gray-600">Create stunning social media banners with professional texture overlays</p>
+        {/* Hero Section */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-gray-900">Social Banner Creator</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Create stunning social media banners with professional templates, advanced filters, and customizable designs
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button asChild size="lg">
+              <Link href="/editor">
+                <Edit className="w-5 h-5 mr-2" />
+                Start Creating
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/templates">
+                <Layers className="w-5 h-5 mr-2" />
+                Browse Templates
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat) => {
-            const Icon = stat.icon
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat) => (
+            <Card key={stat.name}>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.name}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature) => {
+            const Icon = feature.icon
             return (
-              <Card key={stat.label}>
-                <CardContent className="p-6">
+              <Card key={feature.name} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <div className={`p-2 rounded-lg ${feature.color} text-white`}>
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <Icon className="w-8 h-8 text-blue-500" />
+                    {feature.isNew && (
+                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        New
+                      </Badge>
+                    )}
                   </div>
+                  <CardTitle className="text-lg">{feature.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{feature.description}</p>
+                  <Button asChild className="w-full">
+                    <Link href={feature.href}>Explore</Link>
+                  </Button>
                 </CardContent>
               </Card>
             )
           })}
         </div>
 
-        {/* Current Project Status */}
-        {(bannerDataLocal.shopName || bannerDataLocal.productName) && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Edit className="w-5 h-5" />
-                Current Project
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg">{bannerDataLocal.shopName || "Untitled Project"}</h3>
-                  <p className="text-gray-600">{bannerDataLocal.productName || "No product name set"}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Theme: {bannerDataLocal.designTheme.replace("_", " ")} • Resolution: {bannerDataLocal.resolution}
-                  </p>
-                </div>
-                <Link href="/editor">
-                  <Button>Continue Editing</Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickActions.map((action) => {
-              const Icon = action.icon
-              return (
-                <Link key={action.title} href={action.href}>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardContent className="p-6">
-                      <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4`}>
-                        <Icon className="w-6 h-6 text-white" />
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2">{action.title}</h3>
-                      <p className="text-gray-600 text-sm">{action.description}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Features Overview */}
-        <Card>
-          <CardHeader>
-            <CardTitle>✨ What You Can Do</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Palette className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Professional Filters</h4>
-                  <p className="text-sm text-gray-600">Apply Hollywood-grade filters with texture overlays</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Type className="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Custom Typography</h4>
-                  <p className="text-sm text-gray-600">Fine-tune fonts, sizes, and text styling</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <ImageIcon className="w-4 h-4 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Brand Kit Manager</h4>
-                  <p className="text-sm text-gray-600">Maintain consistent brand colors and assets</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Layers className="w-4 h-4 text-orange-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Template Gallery</h4>
-                  <p className="text-sm text-gray-600">Start with professionally designed templates</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Download className="w-4 h-4 text-red-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Multi-Format Export</h4>
-                  <p className="text-sm text-gray-600">Export in PNG, JPG, WebP with quality control</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <Star className="w-4 h-4 text-yellow-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">AI-Powered Tools</h4>
-                  <p className="text-sm text-gray-600">Smart color extraction and design suggestions</p>
-                </div>
+        {/* Quick Start */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <h3 className="text-2xl font-bold text-gray-900">Ready to Get Started?</h3>
+              <p className="text-gray-600">
+                Jump right into creating your first social media banner or explore our new Maritime Adventure template
+              </p>
+              <div className="flex justify-center gap-4">
+                <Button asChild>
+                  <Link href="/editor">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Create Banner
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/maritime">
+                    <Anchor className="w-4 h-4 mr-2" />
+                    Try Maritime Template
+                  </Link>
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -2574,6 +2583,7 @@ export default function SocialBannerCreator() {
                           <img
                             src={
                               (bannerDataLocal[selectedImageForFilter as keyof BannerData] as string) ||
+                              "/placeholder.svg" ||
                               "/placeholder.svg"
                             }
                             alt="Filter Preview"

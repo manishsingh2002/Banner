@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useBanner } from "@/contexts/banner-context"
+import Link from "next/link"
+import { ExternalLink, Sparkles } from "lucide-react"
 
 interface Template {
   id: string
@@ -11,8 +13,10 @@ interface Template {
   preview: string
   category: string
   isPro?: boolean
+  isNew?: boolean
   description: string
   theme: string
+  href?: string
 }
 
 const templates: Template[] = [
@@ -82,6 +86,16 @@ const templates: Template[] = [
     description: "Perfect for Instagram mood boards and galleries",
     theme: "instagram_mood",
   },
+  {
+    id: "maritime-adventure",
+    name: "Maritime Adventure",
+    preview: "⚓",
+    category: "Travel",
+    isNew: true,
+    description: "Stunning ocean-themed design for travel and adventure content",
+    theme: "maritime_adventure",
+    href: "/maritime",
+  },
 ]
 
 export default function TemplatesPage() {
@@ -132,6 +146,12 @@ export default function TemplatesPage() {
                     {template.isPro && (
                       <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">PRO</Badge>
                     )}
+                    {template.isNew && (
+                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        NEW
+                      </Badge>
+                    )}
                   </div>
 
                   <Badge variant="secondary" className="text-xs">
@@ -141,9 +161,20 @@ export default function TemplatesPage() {
                   <p className="text-sm text-gray-600 leading-relaxed">{template.description}</p>
                 </div>
 
-                <Button size="sm" className="w-full" onClick={() => handleSelectTemplate(template)}>
-                  Use Template
-                </Button>
+                <div className="space-y-2">
+                  {template.href ? (
+                    <Button size="sm" className="w-full" asChild>
+                      <Link href={template.href}>
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Open Template
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" className="w-full" onClick={() => handleSelectTemplate(template)}>
+                      Use Template
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

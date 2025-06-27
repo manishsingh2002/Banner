@@ -3,284 +3,260 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
-import { Download, FileImage, Zap } from "lucide-react"
 import { useBanner } from "@/contexts/banner-context"
+import { Download, FileImage, Settings, Zap } from "lucide-react"
 
 export default function ExportPage() {
   const { bannerData, downloadBanner } = useBanner()
-  const [exportSettings, setExportSettings] = useState({
-    formats: ["png"],
-    sizes: ["1080x1920"],
-    quality: "high",
-    socialOptimized: true,
-    includeWatermark: false,
-  })
+  const [exportFormat, setExportFormat] = useState("png")
+  const [exportQuality, setExportQuality] = useState("high")
+  const [exportSize, setExportSize] = useState("original")
+  const [batchExport, setBatchExport] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(0)
 
-  const socialSizes = [
-    { label: "Instagram Story (1080x1920)", value: "1080x1920" },
-    { label: "Instagram Post (1080x1080)", value: "1080x1080" },
-    { label: "Facebook Post (1200x630)", value: "1200x630" },
-    { label: "Twitter Header (1500x500)", value: "1500x500" },
-    { label: "LinkedIn Post (1200x627)", value: "1200x627" },
-    { label: "YouTube Thumbnail (1280x720)", value: "1280x720" },
+  const formatOptions = [
+    { value: "png", label: "PNG", description: "Best for graphics with transparency" },
+    { value: "jpg", label: "JPEG", description: "Best for photos, smaller file size" },
+    { value: "webp", label: "WebP", description: "Modern format, great compression" },
+    { value: "pdf", label: "PDF", description: "Vector format, scalable" },
   ]
 
-  const exportMultipleFormats = async () => {
+  const qualityOptions = [
+    { value: "low", label: "Low (60%)", size: "~200KB" },
+    { value: "medium", label: "Medium (80%)", size: "~500KB" },
+    { value: "high", label: "High (95%)", size: "~1MB" },
+    { value: "maximum", label: "Maximum (100%)", size: "~2MB" },
+  ]
+
+  const sizeOptions = [
+    {
+      value: "original",
+      label: "Original Size",
+      dimensions: bannerData.resolution === "4k" ? "3840×2160" : "1920×1080",
+    },
+    { value: "large", label: "Large", dimensions: "1920×1080" },
+    { value: "medium", label: "Medium", dimensions: "1280×720" },
+    { value: "small", label: "Small", dimensions: "640×360" },
+    { value: "square", label: "Square (Instagram)", dimensions: "1080×1080" },
+    { value: "story", label: "Story (Instagram)", dimensions: "1080×1920" },
+  ]
+
+  const handleExport = async () => {
     setIsExporting(true)
     setExportProgress(0)
 
-    const totalFormats = exportSettings.formats.length
+    // Simulate export progress
+    const interval = setInterval(() => {
+      setExportProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setIsExporting(false)
+          downloadBanner(exportFormat)
+          return 100
+        }
+        return prev + 10
+      })
+    }, 200)
+  }
 
-    for (let i = 0; i < totalFormats; i++) {
-      const format = exportSettings.formats[i]
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      downloadBanner(format)
-      setExportProgress(((i + 1) / totalFormats) * 100)
+  const handleBatchExport = async () => {
+    setIsExporting(true)
+    setExportProgress(0)
+
+    const formats = ["png", "jpg", "webp"]
+    for (let i = 0; i < formats.length; i++) {
+      setExportProgress(((i + 1) / formats.length) * 100)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      downloadBanner(formats[i])
     }
 
     setIsExporting(false)
-    setExportProgress(0)
   }
 
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Export & Download</h1>
-        <p className="text-gray-600">Export your banner in multiple formats and sizes</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Export Options</h1>
+        <p className="text-gray-600">Download your banners in multiple formats and sizes</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Export Settings */}
-        <div className="space-y-6">
+        <div className="lg:col-span-1 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileImage className="w-5 h-5" />
-                Export Formats
+                <Settings className="w-5 h-5" />
+                Export Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                {["PNG", "JPG", "WebP", "PDF"].map((format) => (
-                  <div key={format} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={format}
-                      checked={exportSettings.formats.includes(format.toLowerCase())}
-                      onCheckedChange={(checked) => {
-                        const fmt = format.toLowerCase()
-                        setExportSettings((prev) => ({
-                          ...prev,
-                          formats: checked ? [...prev.formats, fmt] : prev.formats.filter((f) => f !== fmt),
-                        }))
-                      }}
-                    />
-                    <label htmlFor={format} className="text-sm font-medium">
-                      {format}
-                    </label>
-                  </div>
-                ))}
+              <div>
+                <Label>Format</Label>
+                <Select value={exportFormat} onValueChange={setExportFormat}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formatOptions.map((format) => (
+                      <SelectItem key={format.value} value={format.value}>
+                        <div>
+                          <div className="font-medium">{format.label}</div>
+                          <div className="text-xs text-gray-500">{format.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Quality</Label>
+                <Select value={exportQuality} onValueChange={setExportQuality}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {qualityOptions.map((quality) => (
+                      <SelectItem key={quality.value} value={quality.value}>
+                        <div className="flex justify-between w-full">
+                          <span>{quality.label}</span>
+                          <span className="text-xs text-gray-500">{quality.size}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Size</Label>
+                <Select value={exportSize} onValueChange={setExportSize}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizeOptions.map((size) => (
+                      <SelectItem key={size.value} value={size.value}>
+                        <div>
+                          <div className="font-medium">{size.label}</div>
+                          <div className="text-xs text-gray-500">{size.dimensions}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox id="batchExport" checked={batchExport} onCheckedChange={setBatchExport} />
+                <Label htmlFor="batchExport">Batch export (all formats)</Label>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Social Media Sizes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Select
-                value={exportSettings.sizes[0]}
-                onValueChange={(value) => setExportSettings((prev) => ({ ...prev, sizes: [value] }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {socialSizes.map((size) => (
-                    <SelectItem key={size.value} value={size.value}>
-                      {size.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quality Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Select
-                value={exportSettings.quality}
-                onValueChange={(value) => setExportSettings((prev) => ({ ...prev, quality: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High Quality (95%)</SelectItem>
-                  <SelectItem value="medium">Medium Quality (80%)</SelectItem>
-                  <SelectItem value="low">Low Quality (60%)</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="social-optimized"
-                    checked={exportSettings.socialOptimized}
-                    onCheckedChange={(checked) =>
-                      setExportSettings((prev) => ({ ...prev, socialOptimized: checked as boolean }))
-                    }
-                  />
-                  <label htmlFor="social-optimized" className="text-sm">
-                    Optimize for social media
-                  </label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="watermark"
-                    checked={exportSettings.includeWatermark}
-                    onCheckedChange={(checked) =>
-                      setExportSettings((prev) => ({ ...prev, includeWatermark: checked as boolean }))
-                    }
-                  />
-                  <label htmlFor="watermark" className="text-sm">
-                    Include watermark
-                  </label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Export Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Download className="w-5 h-5" />
-                Download Options
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isExporting && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Exporting...</span>
-                    <span>{Math.round(exportProgress)}%</span>
-                  </div>
+            <CardContent className="pt-6 space-y-3">
+              {isExporting ? (
+                <div className="space-y-3">
                   <Progress value={exportProgress} className="w-full" />
+                  <p className="text-sm text-center text-gray-600">Exporting... {exportProgress}%</p>
                 </div>
-              )}
-
-              <div className="grid gap-2">
-                <Button
-                  onClick={() => downloadBanner("png")}
-                  disabled={!bannerData.shopName || !bannerData.productName || isExporting}
-                  className="w-full"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Quick Download (PNG)
-                </Button>
-
-                <Button
-                  onClick={exportMultipleFormats}
-                  disabled={
-                    !bannerData.shopName ||
-                    !bannerData.productName ||
-                    isExporting ||
-                    exportSettings.formats.length === 0
-                  }
-                  variant="outline"
-                  className="w-full bg-transparent"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Batch Export ({exportSettings.formats.length} formats)
-                </Button>
-              </div>
-
-              {exportSettings.formats.length > 0 && (
-                <div className="text-xs text-gray-500">
-                  Will export: {exportSettings.formats.map((f) => f.toUpperCase()).join(", ")}
-                </div>
+              ) : (
+                <>
+                  <Button onClick={handleExport} className="w-full" size="lg">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Banner
+                  </Button>
+                  {batchExport && (
+                    <Button onClick={handleBatchExport} variant="outline" className="w-full bg-transparent">
+                      <Zap className="w-4 h-4 mr-2" />
+                      Batch Export
+                    </Button>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Export Preview & History */}
-        <div className="space-y-6">
+        {/* Preview and Info */}
+        <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Export Preview</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FileImage className="w-5 h-5" />
+                Export Preview
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[9/16] bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
                 <div className="text-center text-gray-500">
-                  <FileImage className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Preview will appear here</p>
-                  <p className="text-xs">Size: {exportSettings.sizes[0]}</p>
+                  <FileImage className="w-12 h-12 mx-auto mb-4" />
+                  <p>Banner preview will appear here</p>
+                  <p className="text-sm">
+                    Format: {exportFormat.toUpperCase()} | Quality: {exportQuality}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Export History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {[
-                  { name: "social-banner-1080.png", time: "2 minutes ago", size: "1.2 MB" },
-                  { name: "social-banner-1080.jpg", time: "5 minutes ago", size: "890 KB" },
-                  { name: "social-banner-4k.png", time: "10 minutes ago", size: "4.8 MB" },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">{item.name}</p>
-                      <p className="text-xs text-gray-500">{item.time}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">{item.size}</p>
-                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Export Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Format:</span>
+                  <span className="text-sm font-medium">{exportFormat.toUpperCase()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Quality:</span>
+                  <span className="text-sm font-medium">{exportQuality}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Dimensions:</span>
+                  <span className="text-sm font-medium">
+                    {sizeOptions.find((s) => s.value === exportSize)?.dimensions}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Theme:</span>
+                  <span className="text-sm font-medium capitalize">{bannerData.designTheme.replace("_", " ")}</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pro Export Features</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Batch export to cloud</span>
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">PRO</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Custom watermarks</span>
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">PRO</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">API integration</span>
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">PRO</span>
-                </div>
-              </div>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500">Upgrade to Pro</Button>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Export</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  Instagram Post (1080×1080)
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  Instagram Story (1080×1920)
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  Facebook Cover (1200×630)
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  Twitter Header (1500×500)
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  LinkedIn Banner (1584×396)
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

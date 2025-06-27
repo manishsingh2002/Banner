@@ -3,168 +3,185 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BrandKit } from "@/components/brand-kit"
-import { Palette, Save, Upload } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { ImageIcon, Upload, Trash2, Plus, Palette } from "lucide-react"
+
+interface BrandColor {
+  id: string
+  name: string
+  hex: string
+  usage: string
+}
+
+interface BrandAsset {
+  id: string
+  name: string
+  type: "logo" | "icon" | "image"
+  url: string
+  size: string
+}
 
 export default function BrandKitPage() {
-  const [brandData, setBrandData] = useState({
-    logo: null,
-    primaryColor: "#059669",
-    secondaryColor: "#84cc16",
-    fontFamily: "Inter",
-    brandName: "",
-  })
-
-  const [savedKits, setSavedKits] = useState([
-    {
-      id: 1,
-      name: "Tech Startup",
-      primaryColor: "#3b82f6",
-      secondaryColor: "#1e40af",
-      fontFamily: "Inter",
-    },
-    {
-      id: 2,
-      name: "Organic Food",
-      primaryColor: "#059669",
-      secondaryColor: "#84cc16",
-      fontFamily: "Poppins",
-    },
-    {
-      id: 3,
-      name: "Fashion Brand",
-      primaryColor: "#8b5cf6",
-      secondaryColor: "#a855f7",
-      fontFamily: "Playfair Display",
-    },
+  const [brandColors, setBrandColors] = useState<BrandColor[]>([
+    { id: "1", name: "Primary Blue", hex: "#3B82F6", usage: "Main brand color" },
+    { id: "2", name: "Secondary Green", hex: "#10B981", usage: "Accent color" },
+    { id: "3", name: "Neutral Gray", hex: "#6B7280", usage: "Text and backgrounds" },
   ])
 
-  const handleBrandChange = (newBrandData: any) => {
-    setBrandData(newBrandData)
-  }
+  const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([
+    { id: "1", name: "Main Logo", type: "logo", url: "/placeholder-logo.png", size: "512x512" },
+    { id: "2", name: "Icon", type: "icon", url: "/placeholder-logo.svg", size: "64x64" },
+  ])
 
-  const saveBrandKit = () => {
-    if (brandData.brandName) {
-      const newKit = {
-        id: Date.now(),
-        name: brandData.brandName,
-        primaryColor: brandData.primaryColor,
-        secondaryColor: brandData.secondaryColor,
-        fontFamily: brandData.fontFamily,
-      }
-      setSavedKits((prev) => [...prev, newKit])
-      localStorage.setItem("brandKits", JSON.stringify([...savedKits, newKit]))
+  const [newColor, setNewColor] = useState({ name: "", hex: "#000000", usage: "" })
+
+  const addColor = () => {
+    if (newColor.name && newColor.hex) {
+      setBrandColors([
+        ...brandColors,
+        {
+          id: Date.now().toString(),
+          ...newColor,
+        },
+      ])
+      setNewColor({ name: "", hex: "#000000", usage: "" })
     }
   }
 
-  const loadBrandKit = (kit: any) => {
-    setBrandData((prev) => ({
-      ...prev,
-      brandName: kit.name,
-      primaryColor: kit.primaryColor,
-      secondaryColor: kit.secondaryColor,
-      fontFamily: kit.fontFamily,
-    }))
+  const removeColor = (id: string) => {
+    setBrandColors(brandColors.filter((color) => color.id !== id))
+  }
+
+  const removeAsset = (id: string) => {
+    setBrandAssets(brandAssets.filter((asset) => asset.id !== id))
   }
 
   return (
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Brand Kit Manager</h1>
-        <p className="text-gray-600">Manage your brand colors, fonts, and assets for consistent designs</p>
+        <p className="text-gray-600">Manage your brand colors, logos, and assets for consistent branding</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Brand Kit Editor */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Brand Colors */}
         <div className="space-y-6">
-          <BrandKit onBrandChange={handleBrandChange} />
-
-          {/* AI Color Extraction */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
-                AI Color Extraction
+                Brand Colors
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">Upload an image to automatically extract brand colors using AI</p>
-              <Button variant="outline" className="w-full bg-transparent">
-                <Upload className="w-4 h-4 mr-2" />
-                Extract Colors from Image
-              </Button>
-
-              <div className="grid grid-cols-5 gap-2">
-                {["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6"].map((color, index) => (
+              {brandColors.map((color) => (
+                <div key={color.id} className="flex items-center gap-4 p-3 border rounded-lg">
                   <div
-                    key={index}
-                    className="aspect-square rounded-lg border-2 border-gray-200 cursor-pointer hover:border-gray-400 transition-colors"
-                    style={{ backgroundColor: color }}
-                    onClick={() => setBrandData((prev) => ({ ...prev, primaryColor: color }))}
+                    className="w-12 h-12 rounded-lg border-2 border-gray-200"
+                    style={{ backgroundColor: color.hex }}
                   />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="flex-1">
+                    <div className="font-medium">{color.name}</div>
+                    <div className="text-sm text-gray-600">{color.hex}</div>
+                    <div className="text-xs text-gray-500">{color.usage}</div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => removeColor(color.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
 
-          {/* Color Palette Generator */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Smart Color Palette</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">Generate complementary colors based on your primary color</p>
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                onClick={() => {
-                  // Generate complementary colors
-                  const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57"]
-                  setBrandData((prev) => ({
-                    ...prev,
-                    secondaryColor: colors[Math.floor(Math.random() * colors.length)],
-                  }))
-                }}
-              >
-                Generate Palette
-              </Button>
+              <div className="border-t pt-4 space-y-3">
+                <h4 className="font-medium">Add New Color</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="colorName">Name</Label>
+                    <Input
+                      id="colorName"
+                      placeholder="Color name"
+                      value={newColor.name}
+                      onChange={(e) => setNewColor({ ...newColor, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="colorHex">Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorHex"
+                        type="color"
+                        value={newColor.hex}
+                        onChange={(e) => setNewColor({ ...newColor, hex: e.target.value })}
+                        className="w-16 h-10 p-1"
+                      />
+                      <Input
+                        placeholder="#000000"
+                        value={newColor.hex}
+                        onChange={(e) => setNewColor({ ...newColor, hex: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="colorUsage">Usage</Label>
+                  <Input
+                    id="colorUsage"
+                    placeholder="How this color is used"
+                    value={newColor.usage}
+                    onChange={(e) => setNewColor({ ...newColor, usage: e.target.value })}
+                  />
+                </div>
+                <Button onClick={addColor} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Color
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Saved Brand Kits */}
+        {/* Brand Assets */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Save className="w-5 h-5" />
-                Saved Brand Kits
+                <ImageIcon className="w-5 h-5" />
+                Brand Assets
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {savedKits.map((kit) => (
-                <div
-                  key={kit.id}
-                  className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => loadBrandKit(kit)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">{kit.name}</h4>
-                      <p className="text-sm text-gray-600">{kit.fontFamily}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: kit.primaryColor }} />
-                      <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: kit.secondaryColor }} />
+              {brandAssets.map((asset) => (
+                <div key={asset.id} className="flex items-center gap-4 p-3 border rounded-lg">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{asset.name}</div>
+                    <div className="flex gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {asset.type}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {asset.size}
+                      </Badge>
                     </div>
                   </div>
+                  <Button variant="ghost" size="sm" onClick={() => removeAsset(asset.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               ))}
 
-              <Button onClick={saveBrandKit} disabled={!brandData.brandName} className="w-full">
-                Save Current Kit
-              </Button>
+              <div className="border-t pt-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 mb-2">Upload new brand assets</p>
+                  <Button variant="outline" size="sm">
+                    Choose Files
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -174,38 +191,38 @@ export default function BrandKitPage() {
               <CardTitle>Brand Guidelines</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium">Primary Color</Label>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="w-8 h-8 rounded border" style={{ backgroundColor: brandData.primaryColor }} />
-                    <span className="text-sm font-mono">{brandData.primaryColor}</span>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">Secondary Color</Label>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="w-8 h-8 rounded border" style={{ backgroundColor: brandData.secondaryColor }} />
-                    <span className="text-sm font-mono">{brandData.secondaryColor}</span>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">Typography</Label>
-                  <p className="text-sm mt-1" style={{ fontFamily: brandData.fontFamily }}>
-                    {brandData.fontFamily} - The quick brown fox jumps over the lazy dog
-                  </p>
-                </div>
+              <div>
+                <Label htmlFor="brandName">Brand Name</Label>
+                <Input id="brandName" placeholder="Your brand name" />
               </div>
-
-              <Button variant="outline" className="w-full bg-transparent">
-                Export Brand Guidelines
-              </Button>
+              <div>
+                <Label htmlFor="tagline">Tagline</Label>
+                <Input id="tagline" placeholder="Your brand tagline" />
+              </div>
+              <div>
+                <Label htmlFor="brandVoice">Brand Voice</Label>
+                <Input id="brandVoice" placeholder="Professional, Friendly, Bold..." />
+              </div>
+              <Button className="w-full">Save Guidelines</Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Color Palette Export */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Export Brand Kit</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Button>Export as CSS</Button>
+            <Button variant="outline">Export as JSON</Button>
+            <Button variant="outline">Export as Adobe Swatch</Button>
+            <Button variant="outline">Generate Style Guide</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
