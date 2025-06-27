@@ -16,6 +16,7 @@ import { Download, Upload, ImageIcon, Palette, Sliders } from "lucide-react"
 import { Edit, Layers, Type, TrendingUp, Anchor, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useBanner } from "@/contexts/banner-context"
+import { Layout, Filter, MousePointer } from "lucide-react"
 
 interface ImageFilters {
   brightness: number
@@ -488,45 +489,46 @@ const themes = {
 
 const features = [
   {
-    name: "Banner Editor",
-    description: "Create and customize social media banners with drag-and-drop interface",
-    icon: Edit,
+    name: "Drag & Drop Editor",
+    description: "Intuitive drag and drop interface for easy image uploads",
+    icon: MousePointer,
     href: "/editor",
     color: "bg-blue-500",
+    badge: "New",
   },
   {
     name: "Template Gallery",
     description: "Choose from professionally designed templates",
-    icon: Layers,
+    icon: Layout,
     href: "/templates",
-    color: "bg-green-500",
-  },
-  {
-    name: "Maritime Adventure",
-    description: "Specialized template for travel and adventure content",
-    icon: Anchor,
-    href: "/maritime",
-    color: "bg-teal-500",
-    isNew: true,
-  },
-  {
-    name: "Advanced Filters",
-    description: "Apply Hollywood-grade filters and effects",
-    icon: Palette,
-    href: "/filters",
     color: "bg-purple-500",
   },
   {
-    name: "Typography",
+    name: "Maritime Adventure",
+    description: "Ocean-themed templates for travel content",
+    icon: Anchor,
+    href: "/maritime",
+    color: "bg-teal-500",
+    badge: "Featured",
+  },
+  {
+    name: "Advanced Filters",
+    description: "Professional image filters and effects",
+    icon: Filter,
+    href: "/filters",
+    color: "bg-green-500",
+  },
+  {
+    name: "Typography Studio",
     description: "Customize fonts, sizes, and text styling",
     icon: Type,
     href: "/typography",
     color: "bg-orange-500",
   },
   {
-    name: "Brand Kit",
+    name: "Brand Kit Manager",
     description: "Manage your brand colors, logos, and assets",
-    icon: ImageIcon,
+    icon: Palette,
     href: "/brand-kit",
     color: "bg-pink-500",
   },
@@ -540,10 +542,10 @@ const features = [
 ]
 
 const stats = [
-  { name: "Templates Available", value: "50+" },
-  { name: "Filter Presets", value: "25+" },
-  { name: "Export Formats", value: "4" },
-  { name: "Resolution Options", value: "2" },
+  { name: "Templates Available", value: "50+", icon: Layout },
+  { name: "Export Formats", value: "4", icon: Download },
+  { name: "Filter Presets", value: "25+", icon: Filter },
+  { name: "Font Options", value: "100+", icon: Type },
 ]
 
 export default function SocialBannerCreator() {
@@ -2583,6 +2585,7 @@ export default function SocialBannerCreator() {
                           <img
                             src={
                               (bannerDataLocal[selectedImageForFilter as keyof BannerData] as string) ||
+                              "/placeholder.svg" ||
                               "/placeholder.svg" ||
                               "/placeholder.svg"
                             }

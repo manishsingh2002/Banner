@@ -156,6 +156,16 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
   const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({})
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.crossOrigin = "anonymous"
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = src
+    })
+  }
+
   const generateBanner = async () => {
     if (!canvasRef.current) return
 
@@ -176,6 +186,30 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
       ctx.fillStyle = "#ffffff"
       ctx.fillRect(0, 0, width, height)
 
+      // Load all images first
+      const imagePromises: Promise<void>[] = []
+      const imagesToLoad = [
+        bannerData.productImage,
+        bannerData.horizontalImage,
+        bannerData.verticalImage1,
+        bannerData.verticalImage2,
+        bannerData.verticalImage3,
+        bannerData.inspirationalImage1,
+        bannerData.inspirationalImage2,
+      ].filter(Boolean) as string[]
+
+      for (const imageSrc of imagesToLoad) {
+        if (!loadedImages[imageSrc]) {
+          imagePromises.push(
+            loadImage(imageSrc).then((img) => {
+              setLoadedImages((prev) => ({ ...prev, [imageSrc]: img }))
+            }),
+          )
+        }
+      }
+
+      await Promise.all(imagePromises)
+
       // Generate banner based on theme
       await renderBannerTheme(ctx, width, height)
     } catch (error) {
@@ -189,6 +223,24 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     switch (bannerData.designTheme) {
       case "maritime_adventure":
         await renderMaritimeAdventure(ctx, width, height)
+        break
+      case "social_gallery":
+        await renderSocialGallery(ctx, width, height)
+        break
+      case "instagram_mood":
+        await renderInstagramMood(ctx, width, height)
+        break
+      case "minimalist":
+        await renderMinimalist(ctx, width, height)
+        break
+      case "vibrant":
+        await renderVibrant(ctx, width, height)
+        break
+      case "elegant_cursive":
+        await renderElegantCursive(ctx, width, height)
+        break
+      case "inspirational_vibes":
+        await renderInspirationalVibes(ctx, width, height)
         break
       default:
         await renderDefaultTheme(ctx, width, height)
@@ -230,28 +282,203 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     if (bannerData.productName) {
       ctx.fillText(bannerData.productName, width * 0.7, height * 0.82)
     }
+  }
 
-    // Description
-    ctx.font = `${bannerData.textStyles.descriptionSize}px ${bannerData.textStyles.descriptionFont}`
-    if (bannerData.description) {
-      const words = bannerData.description.split(" ")
+  const renderSocialGallery = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Simple social gallery layout
+    const gradient = ctx.createLinearGradient(0, 0, 0, height)
+    gradient.addColorStop(0, "#f8fafc")
+    gradient.addColorStop(1, "#e2e8f0")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Main product image
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imgSize = Math.min(width, height) * 0.6
+      const x = (width - imgSize) / 2
+      const y = height * 0.1
+      ctx.drawImage(img, x, y, imgSize, imgSize)
+    }
+
+    // Text
+    ctx.fillStyle = "#1e293b"
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
+    }
+
+    if (bannerData.productName) {
+      ctx.font = `${bannerData.textStyles.productNameSize}px ${bannerData.textStyles.productNameFont}`
+      ctx.fillStyle = "#64748b"
+      ctx.fillText(bannerData.productName, width / 2, height * 0.85)
+    }
+  }
+
+  const renderInstagramMood = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Instagram mood board style
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, width, height)
+
+    // Create mood board layout with images
+    const images = [bannerData.productImage, bannerData.horizontalImage, bannerData.verticalImage1].filter(Boolean)
+
+    images.forEach((imageSrc, index) => {
+      if (imageSrc && loadedImages[imageSrc]) {
+        const img = loadedImages[imageSrc]
+        const x = (index % 2) * (width / 2) + width * 0.1
+        const y = Math.floor(index / 2) * (height / 3) + height * 0.1
+        const w = width * 0.35
+        const h = height * 0.25
+        ctx.drawImage(img, x, y, w, h)
+      }
+    })
+
+    // Add text overlay
+    ctx.fillStyle = "#2d5a3d"
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.85)
+    }
+  }
+
+  const renderMinimalist = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Clean minimalist design
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, width, height)
+
+    // Single centered image
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imgSize = Math.min(width, height) * 0.5
+      const x = (width - imgSize) / 2
+      const y = (height - imgSize) / 2 - height * 0.1
+      ctx.drawImage(img, x, y, imgSize, imgSize)
+    }
+
+    // Minimal text
+    ctx.fillStyle = "#000000"
+    ctx.font = `300 ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
+    }
+  }
+
+  const renderVibrant = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Vibrant colorful design
+    const gradient = ctx.createLinearGradient(0, 0, width, height)
+    gradient.addColorStop(0, "#fbbf24")
+    gradient.addColorStop(0.5, "#f59e0b")
+    gradient.addColorStop(1, "#d97706")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Product image with vibrant border
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imgSize = Math.min(width, height) * 0.6
+      const x = (width - imgSize) / 2
+      const y = height * 0.1
+
+      // Add colorful border
+      ctx.fillStyle = "#ffffff"
+      ctx.fillRect(x - 10, y - 10, imgSize + 20, imgSize + 20)
+      ctx.drawImage(img, x, y, imgSize, imgSize)
+    }
+
+    // Bold text
+    ctx.fillStyle = "#ffffff"
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
+    }
+  }
+
+  const renderElegantCursive = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Elegant design with cursive elements
+    const gradient = ctx.createLinearGradient(0, 0, 0, height)
+    gradient.addColorStop(0, "#fdfbfb")
+    gradient.addColorStop(1, "#ebedee")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Product image with elegant frame
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imgSize = Math.min(width, height) * 0.5
+      const x = (width - imgSize) / 2
+      const y = height * 0.15
+
+      // Elegant frame
+      ctx.strokeStyle = "#d1d5db"
+      ctx.lineWidth = 3
+      ctx.strokeRect(x - 15, y - 15, imgSize + 30, imgSize + 30)
+      ctx.drawImage(img, x, y, imgSize, imgSize)
+    }
+
+    // Elegant typography
+    ctx.fillStyle = "#1f2937"
+    ctx.font = `italic ${bannerData.textStyles.shopNameSize}px serif`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
+    }
+  }
+
+  const renderInspirationalVibes = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Inspirational design
+    const gradient = ctx.createLinearGradient(0, 0, width, height)
+    gradient.addColorStop(0, "#4a90a4")
+    gradient.addColorStop(0.5, "#5ba3b8")
+    gradient.addColorStop(1, "#6bb6cc")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Main inspirational image
+    if (bannerData.inspirationalImage1 && loadedImages[bannerData.inspirationalImage1]) {
+      const img = loadedImages[bannerData.inspirationalImage1]
+      ctx.drawImage(img, width * 0.1, height * 0.1, width * 0.8, height * 0.5)
+    }
+
+    // Inspirational text
+    ctx.fillStyle = "#ffffff"
+    ctx.font = `italic ${bannerData.textStyles.inspirationalTextSize + 10}px serif`
+    ctx.textAlign = "center"
+
+    if (bannerData.inspirationalText) {
+      const words = bannerData.inspirationalText.split(" ")
       let line = ""
-      let y = height * 0.9
+      let y = height * 0.7
 
       for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + " "
         const metrics = ctx.measureText(testLine)
         const testWidth = metrics.width
 
-        if (testWidth > width * 0.4 && n > 0) {
-          ctx.fillText(line, width * 0.7, y)
+        if (testWidth > width * 0.8 && n > 0) {
+          ctx.fillText(line, width / 2, y)
           line = words[n] + " "
-          y += bannerData.textStyles.descriptionSize + 5
+          y += bannerData.textStyles.inspirationalTextSize + 15
         } else {
           line = testLine
         }
       }
-      ctx.fillText(line, width * 0.7, y)
+      ctx.fillText(line, width / 2, y)
+    }
+
+    // Author name
+    if (bannerData.authorName) {
+      ctx.font = `${bannerData.textStyles.authorNameSize}px ${bannerData.textStyles.authorNameFont}`
+      ctx.fillText(`- ${bannerData.authorName}`, width / 2, height * 0.85)
     }
   }
 
