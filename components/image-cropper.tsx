@@ -8,11 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Crop, RotateCw, FlipHorizontal, FlipVertical, ZoomIn, Brain } from "lucide-react"
-import { EnhancedAICropDetector, type CropSuggestion } from "./enhanced-ai-crop-detector"
-import { CropSuggestionsPanel } from "./crop-suggestions-panel"
+import { Crop, RotateCw, FlipHorizontal, FlipVertical, ZoomIn } from "lucide-react"
 
 interface CropArea {
   x: number
@@ -52,16 +48,10 @@ export function ImageCropper({
   const [flipHorizontal, setFlipHorizontal] = useState(false)
   const [flipVertical, setFlipVertical] = useState(false)
   const [presetRatio, setPresetRatio] = useState<string>("free")
-  const [aiSuggestions, setAiSuggestions] = useState<CropSuggestion[]>([])
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null)
-  const [showAISuggestions, setShowAISuggestions] = useState(true)
-  const [analysisProgress, setAnalysisProgress] = useState(0)
 
   // Load image when dialog opens
   useEffect(() => {
     if (isOpen && imageSrc) {
-      setIsAnalyzing(true)
       const img = new Image()
       img.crossOrigin = "anonymous"
       img.onload = () => {
@@ -74,28 +64,10 @@ export function ImageCropper({
           width: initialSize,
           height: aspectRatio ? initialSize / aspectRatio : initialSize,
         })
-        setIsAnalyzing(false)
       }
       img.src = imageSrc
     }
   }, [isOpen, imageSrc, aspectRatio])
-
-  // Handle AI suggestions
-  const handleAISuggestions = useCallback((suggestions: CropSuggestion[]) => {
-    setAiSuggestions(suggestions)
-    setIsAnalyzing(false)
-  }, [])
-
-  // Apply AI suggestion
-  const applySuggestion = useCallback((suggestion: CropSuggestion) => {
-    setCropArea({
-      x: suggestion.x,
-      y: suggestion.y,
-      width: suggestion.width,
-      height: suggestion.height,
-    })
-    setSelectedSuggestion(suggestion.id)
-  }, [])
 
   // Draw image and crop overlay
   const drawCanvas = useCallback(() => {
@@ -157,13 +129,13 @@ export function ImageCropper({
     ctx.clearRect(cropX, cropY, cropWidth, cropHeight)
 
     // Crop border
-    ctx.strokeStyle = selectedSuggestion ? "#10b981" : "#3b82f6"
-    ctx.lineWidth = selectedSuggestion ? 3 : 2
+    ctx.strokeStyle = "#3b82f6"
+    ctx.lineWidth = 2
     ctx.strokeRect(cropX, cropY, cropWidth, cropHeight)
 
     // Corner handles
     const handleSize = 8
-    ctx.fillStyle = selectedSuggestion ? "#10b981" : "#3b82f6"
+    ctx.fillStyle = "#3b82f6"
     const corners = [
       [cropX - handleSize / 2, cropY - handleSize / 2],
       [cropX + cropWidth - handleSize / 2, cropY - handleSize / 2],
@@ -188,43 +160,7 @@ export function ImageCropper({
       ctx.lineTo(cropX + cropWidth, y)
       ctx.stroke()
     }
-
-    // Draw AI suggestion overlays if enabled
-    if (showAISuggestions && aiSuggestions.length > 0) {
-      aiSuggestions.forEach((suggestion, index) => {
-        if (suggestion.id === selectedSuggestion) return
-
-        const suggestionX = suggestion.x * scaleX
-        const suggestionY = suggestion.y * scaleY
-        const suggestionWidth = suggestion.width * scaleX
-        const suggestionHeight = suggestion.height * scaleY
-
-        // Draw suggestion outline
-        ctx.strokeStyle = `hsla(${index * 60}, 70%, 50%, 0.6)`
-        ctx.lineWidth = 2
-        ctx.setLineDash([5, 5])
-        ctx.strokeRect(suggestionX, suggestionY, suggestionWidth, suggestionHeight)
-        ctx.setLineDash([])
-
-        // Draw suggestion label
-        ctx.fillStyle = `hsla(${index * 60}, 70%, 50%, 0.8)`
-        ctx.fillRect(suggestionX, suggestionY - 20, suggestionWidth, 20)
-        ctx.fillStyle = "white"
-        ctx.font = "12px Inter"
-        ctx.fillText(suggestion.name, suggestionX + 5, suggestionY - 5)
-      })
-    }
-  }, [
-    image,
-    cropArea,
-    zoom,
-    rotation,
-    flipHorizontal,
-    flipVertical,
-    aiSuggestions,
-    selectedSuggestion,
-    showAISuggestions,
-  ])
+  }, [image, cropArea, zoom, rotation, flipHorizontal, flipVertical])
 
   // Redraw canvas when dependencies change
   useEffect(() => {
@@ -252,7 +188,6 @@ export function ImageCropper({
       if (x >= cropX && x <= cropX + cropWidth && y >= cropY && y <= cropY + cropHeight) {
         setIsDragging(true)
         setDragStart({ x: x - cropX, y: y - cropY })
-        setSelectedSuggestion(null)
       }
     },
     [image, cropArea],
@@ -287,7 +222,6 @@ export function ImageCropper({
   const handlePresetChange = useCallback(
     (value: string) => {
       setPresetRatio(value)
-      setSelectedSuggestion(null)
       if (!image) return
 
       let newWidth = cropArea.width
@@ -364,47 +298,19 @@ export function ImageCropper({
     setRotation(0)
     setFlipHorizontal(false)
     setFlipVertical(false)
-    setSelectedSuggestion(null)
   }, [])
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return "bg-green-500"
-    if (confidence >= 0.6) return "bg-yellow-500"
-    return "bg-orange-500"
-  }
-
-  const getTypeIcon = (type: CropSuggestion["type"]) => {
-    switch (type) {
-      case "face":
-        return "👤"
-      case "object":
-        return "🎯"
-      case "composition":
-        return "📐"
-      case "edge":
-        return "⚡"
-      case "color":
-        return "🎨"
-      default:
-        return "✨"
-    }
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crop className="w-5 h-5" />
             {title}
-            <Badge variant="outline" className="ml-2">
-              <Brain className="w-3 h-3 mr-1" />
-              AI-Powered
-            </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[75vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[70vh]">
           {/* Canvas Area */}
           <div className="lg:col-span-3 relative" ref={containerRef}>
             <canvas
@@ -415,38 +321,10 @@ export function ImageCropper({
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             />
-            {isAnalyzing && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                <div className="bg-white p-4 rounded-lg flex items-center gap-3 min-w-[200px]">
-                  <Brain className="w-5 h-5 animate-pulse text-blue-600" />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium block">AI analyzing image...</span>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${analysisProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* AI Suggestions Panel */}
-          <div className="lg:col-span-1 space-y-4">
-            <CropSuggestionsPanel
-              suggestions={aiSuggestions}
-              selectedSuggestion={selectedSuggestion}
-              onSelectSuggestion={applySuggestion}
-              onToggleVisibility={() => setShowAISuggestions(!showAISuggestions)}
-              isVisible={showAISuggestions}
-              isAnalyzing={isAnalyzing}
-            />
           </div>
 
           {/* Controls */}
-          <div className="lg:col-span-1 space-y-4 overflow-y-auto">
+          <div className="space-y-4 overflow-y-auto">
             <div>
               <Label className="text-sm font-medium">Aspect Ratio</Label>
               <Select value={presetRatio} onValueChange={handlePresetChange}>
@@ -470,10 +348,7 @@ export function ImageCropper({
               </Label>
               <Slider
                 value={[zoom]}
-                onValueChange={([value]) => {
-                  setZoom(value)
-                  setSelectedSuggestion(null)
-                }}
+                onValueChange={([value]) => setZoom(value)}
                 min={0.1}
                 max={3}
                 step={0.1}
@@ -488,10 +363,7 @@ export function ImageCropper({
               </Label>
               <Slider
                 value={[rotation]}
-                onValueChange={([value]) => {
-                  setRotation(value)
-                  setSelectedSuggestion(null)
-                }}
+                onValueChange={([value]) => setRotation(value)}
                 min={-180}
                 max={180}
                 step={15}
@@ -505,10 +377,7 @@ export function ImageCropper({
                 <Button
                   variant={flipHorizontal ? "default" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    setFlipHorizontal(!flipHorizontal)
-                    setSelectedSuggestion(null)
-                  }}
+                  onClick={() => setFlipHorizontal(!flipHorizontal)}
                   className="flex items-center gap-1"
                 >
                   <FlipHorizontal className="w-4 h-4" />
@@ -517,10 +386,7 @@ export function ImageCropper({
                 <Button
                   variant={flipVertical ? "default" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    setFlipVertical(!flipVertical)
-                    setSelectedSuggestion(null)
-                  }}
+                  onClick={() => setFlipVertical(!flipVertical)}
                   className="flex items-center gap-1"
                 >
                   <FlipVertical className="w-4 h-4" />
@@ -533,38 +399,19 @@ export function ImageCropper({
               Reset Transforms
             </Button>
 
-            <Separator />
-
             <div className="text-xs text-gray-500 space-y-1">
-              <p>• Click AI suggestions to apply</p>
               <p>• Drag to move crop area</p>
-              <p>• Green border = AI suggestion</p>
-              <p>• Grid lines help composition</p>
+              <p>• Use controls to adjust image</p>
+              <p>• Grid lines help with composition</p>
             </div>
           </div>
         </div>
-
-        {/* Enhanced AI Crop Detector */}
-        {image && (
-          <EnhancedAICropDetector
-            image={image}
-            aspectRatio={aspectRatio}
-            onSuggestionsReady={handleAISuggestions}
-            onAnalysisProgress={(progress) => {
-              setAnalysisProgress(progress)
-              console.log(`Analysis progress: ${progress}%`)
-            }}
-            maxSuggestions={8}
-            enableAdvancedAnalysis={true}
-          />
-        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={handleCrop} className="bg-blue-600 hover:bg-blue-700">
-            <Crop className="w-4 h-4 mr-2" />
             Apply Crop
           </Button>
         </DialogFooter>

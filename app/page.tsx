@@ -1,7 +1,6 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { DragDropZone } from "@/components/drag-drop-zone"
 
 import type React from "react"
 
@@ -13,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, ImageIcon, Palette, Sliders } from "lucide-react"
+import { Download, Upload, ImageIcon, Palette, Sliders } from "lucide-react"
 import { Edit, Layers, Type, TrendingUp, Anchor, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useBanner } from "@/contexts/banner-context"
@@ -2114,71 +2113,75 @@ export default function SocialBannerCreator() {
                     />
                   </div>
 
-                  <DragDropZone
-                    label="Product Image"
-                    currentImage={bannerDataLocal.productImage}
-                    onFileUpload={(file) => {
-                      if (file) {
-                        const reader = new FileReader()
-                        reader.onload = (e) => {
-                          setBannerDataLocal((prev) => ({ ...prev, productImage: e.target?.result as string }))
-                        }
-                        reader.readAsDataURL(file)
-                      } else {
-                        setBannerDataLocal((prev) => ({ ...prev, productImage: null }))
-                      }
-                    }}
-                    enableCropping={true}
-                    cropAspectRatio={1} // Square for product images
-                  />
+                  <div className="space-y-2">
+                    <Label>Product Image</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Image
+                      </Button>
+                      {bannerDataLocal.productImage && <span className="text-sm text-green-600">✓ Image uploaded</span>}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
 
-                  <DragDropZone
-                    label="Main Horizontal Image"
-                    currentImage={bannerDataLocal.horizontalImage}
-                    onFileUpload={(file) => {
-                      if (file) {
-                        const reader = new FileReader()
-                        reader.onload = (e) => {
-                          setBannerDataLocal((prev) => ({ ...prev, horizontalImage: e.target?.result as string }))
-                        }
-                        reader.readAsDataURL(file)
-                      } else {
-                        setBannerDataLocal((prev) => ({ ...prev, horizontalImage: null }))
-                      }
-                    }}
-                    enableCropping={true}
-                    cropAspectRatio={16 / 9} // Widescreen for horizontal images
-                  />
+                  <div className="space-y-2">
+                    <Label>Main Horizontal Image</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => horizontalImageRef.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Horizontal
+                      </Button>
+                      {bannerDataLocal.horizontalImage && <span className="text-sm text-green-600">✓ Uploaded</span>}
+                    </div>
+                    <input
+                      ref={horizontalImageRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleHorizontalImageUpload}
+                      className="hidden"
+                    />
+                  </div>
 
                   <div className="space-y-2">
                     <Label>Vertical Images (3 images)</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {[1, 2, 3].map((num) => (
-                        <DragDropZone
-                          key={num}
-                          label={`Image ${num}`}
-                          currentImage={bannerDataLocal[`verticalImage${num}` as keyof BannerData] as string}
-                          onFileUpload={(file) => {
-                            if (file) {
-                              const reader = new FileReader()
-                              reader.onload = (e) => {
-                                setBannerDataLocal((prev) => ({
-                                  ...prev,
-                                  [`verticalImage${num}`]: e.target?.result as string,
-                                }))
-                              }
-                              reader.readAsDataURL(file)
-                            } else {
-                              setBannerDataLocal((prev) => ({
-                                ...prev,
-                                [`verticalImage${num}`]: null,
-                              }))
-                            }
-                          }}
-                          compact={true}
-                          enableCropping={true}
-                          cropAspectRatio={4 / 5} // Portrait for vertical images
-                        />
+                        <div key={num} className="space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => verticalImageRefs.current[num - 1]?.click()}
+                            className="w-full"
+                          >
+                            <Upload className="w-3 h-3 mr-1" />
+                            {num}
+                          </Button>
+                          {bannerDataLocal[`verticalImage${num}`] && (
+                            <span className="text-xs text-green-600 block text-center">✓</span>
+                          )}
+                          <input
+                            ref={(el) => (verticalImageRefs.current[num - 1] = el)}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleVerticalImageUpload(e, num as 1 | 2 | 3)}
+                            className="hidden"
+                          />
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -2194,8 +2197,7 @@ export default function SocialBannerCreator() {
                           | "minimalist"
                           | "vibrant"
                           | "elegant_cursive"
-                          | "inspirational_vibes"
-                          | "maritime_adventure",
+                          | "inspirational_vibes",
                       ) => setBannerDataLocal((prev) => ({ ...prev, designTheme: value }))}
                     >
                       <SelectTrigger>
@@ -2208,7 +2210,6 @@ export default function SocialBannerCreator() {
                         <SelectItem value="elegant_cursive">Elegant Cursive Accent</SelectItem>
                         <SelectItem value="minimalist">Minimalist Chic</SelectItem>
                         <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
-                        <SelectItem value="maritime_adventure">Maritime Adventure</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -2247,47 +2248,53 @@ export default function SocialBannerCreator() {
                         />
                       </div>
 
-                      <DragDropZone
-                        label="Main Inspirational Image"
-                        currentImage={bannerDataLocal.inspirationalImage1}
-                        onFileUpload={(file) => {
-                          if (file) {
-                            const reader = new FileReader()
-                            reader.onload = (e) => {
-                              setBannerDataLocal((prev) => ({
-                                ...prev,
-                                inspirationalImage1: e.target?.result as string,
-                              }))
-                            }
-                            reader.readAsDataURL(file)
-                          } else {
-                            setBannerDataLocal((prev) => ({ ...prev, inspirationalImage1: null }))
-                          }
-                        }}
-                        enableCropping={true}
-                        cropAspectRatio={3 / 2} // Landscape for inspirational images
-                      />
+                      <div className="space-y-2">
+                        <Label>Main Inspirational Image</Label>
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => inspirationalImage1Ref.current?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Upload Image 1
+                          </Button>
+                          {bannerDataLocal.inspirationalImage1 && (
+                            <span className="text-sm text-green-600">✓ Uploaded</span>
+                          )}
+                        </div>
+                        <input
+                          ref={inspirationalImage1Ref}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleInspirationalImage1Upload}
+                          className="hidden"
+                        />
+                      </div>
 
-                      <DragDropZone
-                        label="Secondary Image (Optional)"
-                        currentImage={bannerDataLocal.inspirationalImage2}
-                        onFileUpload={(file) => {
-                          if (file) {
-                            const reader = new FileReader()
-                            reader.onload = (e) => {
-                              setBannerDataLocal((prev) => ({
-                                ...prev,
-                                inspirationalImage2: e.target?.result as string,
-                              }))
-                            }
-                            reader.readAsDataURL(file)
-                          } else {
-                            setBannerDataLocal((prev) => ({ ...prev, inspirationalImage2: null }))
-                          }
-                        }}
-                        enableCropping={true}
-                        cropAspectRatio={3 / 2}
-                      />
+                      <div className="space-y-2">
+                        <Label>Secondary Image (Optional)</Label>
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => inspirationalImage2Ref.current?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Upload Image 2
+                          </Button>
+                          {bannerDataLocal.inspirationalImage2 && (
+                            <span className="text-sm text-green-600">✓ Uploaded</span>
+                          )}
+                        </div>
+                        <input
+                          ref={inspirationalImage2Ref}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleInspirationalImage2Upload}
+                          className="hidden"
+                        />
+                      </div>
                     </>
                   )}
 
@@ -2578,7 +2585,6 @@ export default function SocialBannerCreator() {
                           <img
                             src={
                               (bannerDataLocal[selectedImageForFilter as keyof BannerData] as string) ||
-                              "/placeholder.svg" ||
                               "/placeholder.svg" ||
                               "/placeholder.svg" ||
                               "/placeholder.svg"
