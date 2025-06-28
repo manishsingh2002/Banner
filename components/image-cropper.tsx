@@ -9,10 +9,10 @@ import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { Crop, RotateCw, FlipHorizontal, FlipVertical, ZoomIn, Sparkles, Brain, Eye } from "lucide-react"
-import { AICropDetector, type CropSuggestion } from "./ai-crop-detector"
+import { Crop, RotateCw, FlipHorizontal, FlipVertical, ZoomIn, Brain } from "lucide-react"
+import { EnhancedAICropDetector, type CropSuggestion } from "./enhanced-ai-crop-detector"
+import { CropSuggestionsPanel } from "./crop-suggestions-panel"
 
 interface CropArea {
   x: number
@@ -56,6 +56,7 @@ export function ImageCropper({
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null)
   const [showAISuggestions, setShowAISuggestions] = useState(true)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
 
   // Load image when dialog opens
   useEffect(() => {
@@ -416,9 +417,17 @@ export function ImageCropper({
             />
             {isAnalyzing && (
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                <div className="bg-white p-4 rounded-lg flex items-center gap-3">
+                <div className="bg-white p-4 rounded-lg flex items-center gap-3 min-w-[200px]">
                   <Brain className="w-5 h-5 animate-pulse text-blue-600" />
-                  <span className="text-sm font-medium">AI analyzing image...</span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium block">AI analyzing image...</span>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${analysisProgress}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -426,57 +435,14 @@ export function ImageCropper({
 
           {/* AI Suggestions Panel */}
           <div className="lg:col-span-1 space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                AI Suggestions
-              </Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAISuggestions(!showAISuggestions)}
-                className="h-6 px-2"
-              >
-                <Eye className="w-3 h-3" />
-              </Button>
-            </div>
-
-            <ScrollArea className="h-[300px]">
-              <div className="space-y-2">
-                {aiSuggestions.map((suggestion) => (
-                  <div
-                    key={suggestion.id}
-                    className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                      selectedSuggestion === suggestion.id
-                        ? "border-green-500 bg-green-50"
-                        : "border-gray-200 hover:border-blue-300"
-                    }`}
-                    onClick={() => applySuggestion(suggestion)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{getTypeIcon(suggestion.type)}</span>
-                        <span className="text-xs font-medium">{suggestion.name}</span>
-                      </div>
-                      <div className={`w-2 h-2 rounded-full ${getConfidenceColor(suggestion.confidence)}`} />
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">{suggestion.description}</p>
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="text-xs">
-                        {suggestion.type}
-                      </Badge>
-                      <span className="text-xs text-gray-500">{Math.round(suggestion.confidence * 100)}%</span>
-                    </div>
-                  </div>
-                ))}
-                {aiSuggestions.length === 0 && !isAnalyzing && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Brain className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No AI suggestions available</p>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+            <CropSuggestionsPanel
+              suggestions={aiSuggestions}
+              selectedSuggestion={selectedSuggestion}
+              onSelectSuggestion={applySuggestion}
+              onToggleVisibility={() => setShowAISuggestions(!showAISuggestions)}
+              isVisible={showAISuggestions}
+              isAnalyzing={isAnalyzing}
+            />
           </div>
 
           {/* Controls */}
@@ -578,8 +544,20 @@ export function ImageCropper({
           </div>
         </div>
 
-        {/* AI Crop Detector */}
-        {image && <AICropDetector image={image} aspectRatio={aspectRatio} onSuggestionsReady={handleAISuggestions} />}
+        {/* Enhanced AI Crop Detector */}
+        {image && (
+          <EnhancedAICropDetector
+            image={image}
+            aspectRatio={aspectRatio}
+            onSuggestionsReady={handleAISuggestions}
+            onAnalysisProgress={(progress) => {
+              setAnalysisProgress(progress)
+              console.log(`Analysis progress: ${progress}%`)
+            }}
+            maxSuggestions={8}
+            enableAdvancedAnalysis={true}
+          />
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

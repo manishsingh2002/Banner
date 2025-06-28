@@ -15,6 +15,8 @@ interface DragDropZoneProps {
   compact?: boolean
   enableCropping?: boolean
   cropAspectRatio?: number
+  autoSuggestCrop?: boolean
+  designTheme?: string
 }
 
 export function DragDropZone({
@@ -24,6 +26,8 @@ export function DragDropZone({
   compact = false,
   enableCropping = false,
   cropAspectRatio,
+  autoSuggestCrop = true,
+  designTheme,
 }: DragDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -134,6 +138,26 @@ export function DragDropZone({
 
   const height = compact ? "h-24" : "h-32"
 
+  const getSmartAspectRatio = useCallback(() => {
+    if (cropAspectRatio) return cropAspectRatio
+
+    // Auto-detect aspect ratio based on design theme and label
+    if (designTheme === "instagram_mood" && label.toLowerCase().includes("product")) {
+      return 1 // Square for Instagram mood board products
+    }
+    if (designTheme === "social_gallery" && label.toLowerCase().includes("horizontal")) {
+      return 16 / 9 // Widescreen for social gallery
+    }
+    if (designTheme === "inspirational_vibes") {
+      return 3 / 2 // Landscape for inspirational content
+    }
+    if (label.toLowerCase().includes("vertical")) {
+      return 4 / 5 // Portrait for vertical images
+    }
+
+    return undefined // Free crop
+  }, [cropAspectRatio, designTheme, label])
+
   if (currentImage) {
     return (
       <div className="space-y-2">
@@ -187,8 +211,8 @@ export function DragDropZone({
             }}
             imageSrc={imageToEdit}
             onCropComplete={handleCropComplete}
-            aspectRatio={cropAspectRatio}
-            title={`Crop ${label}`}
+            aspectRatio={getSmartAspectRatio()}
+            title={`Smart Crop ${label}`}
           />
         )}
       </div>
@@ -269,8 +293,8 @@ export function DragDropZone({
           }}
           imageSrc={imageToEdit}
           onCropComplete={handleCropComplete}
-          aspectRatio={cropAspectRatio}
-          title={`Crop ${label}`}
+          aspectRatio={getSmartAspectRatio()}
+          title={`Smart Crop ${label}`}
         />
       )}
     </div>
