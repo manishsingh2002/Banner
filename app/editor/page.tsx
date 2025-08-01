@@ -1,447 +1,566 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
+import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { useBanner } from "@/contexts/banner-context"
-import { DragDropZone } from "@/components/drag-drop-zone"
 import { MultiImageUploader } from "@/components/multi-image-uploader"
-import { Edit, Upload, Download, Eye, Palette, ImageIcon, Type, Sparkles } from "lucide-react"
-import { useState } from "react"
+import { useBanner } from "@/contexts/banner-context"
+import { Download, Instagram, Smartphone, Palette, ImageIcon } from "lucide-react"
 
 export default function EditorPage() {
   const { bannerData, setBannerData, generateBanner, downloadBanner, isGenerating } = useBanner()
-  const [activeTab, setActiveTab] = useState("content")
+  const [selectedImageForFilter, setSelectedImageForFilter] = useState<string>("productImage")
 
-  const handleInputChange = (field: string, value: string) => {
+  const fontOptions = {
+    Inter: "Inter, sans-serif",
+    "Dancing Script": "Dancing Script, cursive",
+    "Playfair Display": "Playfair Display, serif",
+    Roboto: "Roboto, sans-serif",
+    "Open Sans": "Open Sans, sans-serif",
+    Lato: "Lato, sans-serif",
+    Montserrat: "Montserrat, sans-serif",
+    Poppins: "Poppins, sans-serif",
+  }
+
+  const filterPresets = {
+    none: {
+      brightness: 100,
+      contrast: 100,
+      saturation: 100,
+      blur: 0,
+      sepia: 0,
+      grayscale: 0,
+      hueRotate: 0,
+      hdr: 0,
+      vignette: 0,
+      filmGrain: 0,
+      textureType: "none",
+      textureIntensity: 0,
+      textureBlendMode: "overlay",
+    },
+    instagram: {
+      brightness: 110,
+      contrast: 115,
+      saturation: 120,
+      blur: 0,
+      sepia: 0,
+      grayscale: 0,
+      hueRotate: 0,
+      hdr: 15,
+      vignette: 10,
+      filmGrain: 5,
+      textureType: "none",
+      textureIntensity: 0,
+      textureBlendMode: "overlay",
+    },
+    vintage: {
+      brightness: 110,
+      contrast: 120,
+      saturation: 80,
+      blur: 0,
+      sepia: 30,
+      grayscale: 0,
+      hueRotate: 10,
+      hdr: 0,
+      vignette: 20,
+      filmGrain: 15,
+      textureType: "paper",
+      textureIntensity: 25,
+      textureBlendMode: "multiply",
+    },
+    dramatic: {
+      brightness: 90,
+      contrast: 150,
+      saturation: 120,
+      blur: 0,
+      sepia: 0,
+      grayscale: 0,
+      hueRotate: 0,
+      hdr: 30,
+      vignette: 35,
+      filmGrain: 0,
+      textureType: "none",
+      textureIntensity: 0,
+      textureBlendMode: "overlay",
+    },
+    mobile_optimized: {
+      brightness: 115,
+      contrast: 125,
+      saturation: 110,
+      blur: 0,
+      sepia: 0,
+      grayscale: 0,
+      hueRotate: 0,
+      hdr: 20,
+      vignette: 5,
+      filmGrain: 3,
+      textureType: "none",
+      textureIntensity: 0,
+      textureBlendMode: "overlay",
+    },
+  }
+
+  const handleMultiImageUpload = (images: { [key: string]: string | null }) => {
     setBannerData((prev) => ({
       ...prev,
-      [field]: value,
+      productImage: images.main || images.story || prev.productImage,
+      horizontalImage: images.horizontal || prev.horizontalImage,
+      verticalImage1: images.vertical1 || prev.verticalImage1,
+      verticalImage2: images.vertical2 || prev.verticalImage2,
+      verticalImage3: images.vertical3 || prev.verticalImage3,
     }))
   }
 
-  const handleImageUpload = (field: string, file: File | null) => {
-    if (!file) {
-      setBannerData((prev) => ({
-        ...prev,
-        [field]: null,
-      }))
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const result = e.target?.result as string
-      setBannerData((prev) => ({
-        ...prev,
-        [field]: result,
-      }))
-    }
-    reader.readAsDataURL(file)
+  const applyFilterPreset = (preset: string) => {
+    const presetFilters = filterPresets[preset as keyof typeof filterPresets]
+    setBannerData((prev) => ({
+      ...prev,
+      imageFilters: {
+        ...prev.imageFilters,
+        [selectedImageForFilter]: {
+          ...presetFilters,
+          preset,
+        },
+      },
+    }))
   }
 
-  const handleMultipleImageUpload = (files: File[]) => {
-    files.forEach((file, index) => {
-      if (index < 3) {
-        const field = `verticalImage${index + 1}`
-        handleImageUpload(field, file)
-      }
-    })
+  const updateFilter = (filterName: string, value: number | string) => {
+    setBannerData((prev) => ({
+      ...prev,
+      imageFilters: {
+        ...prev.imageFilters,
+        [selectedImageForFilter]: {
+          ...prev.imageFilters[selectedImageForFilter as keyof typeof prev.imageFilters],
+          [filterName]: value,
+          preset: "custom",
+        },
+      },
+    }))
   }
 
-  const getThemeDescription = (theme: string) => {
-    const descriptions = {
-      social_gallery: "Perfect for product showcases and social media posts",
-      instagram_mood: "Aesthetic mood board style with color palettes",
-      minimalist: "Clean and simple design with focus on content",
-      vibrant: "Bold colors and energetic design",
-      elegant_cursive: "Sophisticated typography with elegant styling",
-      inspirational_vibes: "Motivational quotes and inspiring imagery",
-      maritime_adventure: "Ocean-themed design for travel and adventure content",
+  const updateTextStyle = (property: string, value: string | number) => {
+    setBannerData((prev) => ({
+      ...prev,
+      textStyles: {
+        ...prev.textStyles,
+        [property]: value,
+      },
+    }))
+  }
+
+  const getFilterString = (filters: any): string => {
+    let filterString = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px) sepia(${filters.sepia}%) grayscale(${filters.grayscale}%) hue-rotate(${filters.hueRotate}deg)`
+
+    if (filters.hdr > 0) {
+      const hdrBoost = 1 + filters.hdr / 100
+      filterString += ` contrast(${Math.min(200, filters.contrast * hdrBoost)}%) saturate(${Math.min(200, filters.saturation * hdrBoost)}%)`
     }
-    return descriptions[theme as keyof typeof descriptions] || "Custom theme"
+
+    return filterString
   }
 
-  const currentImages = [bannerData.verticalImage1, bannerData.verticalImage2, bannerData.verticalImage3]
+  const currentFilters = bannerData.imageFilters[selectedImageForFilter as keyof typeof bannerData.imageFilters]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Banner Editor
-            <Sparkles className="inline-block w-8 h-8 ml-2 text-yellow-500" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center space-y-4 mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 flex items-center justify-center gap-3">
+            <Instagram className="w-10 h-10 text-pink-500" />
+            Instagram Banner Editor
           </h1>
-          <p className="text-lg text-gray-600">Create stunning social media banners with drag & drop tools</p>
-          <div className="flex justify-center gap-2 mt-4">
-            <Badge variant="secondary">Drag & Drop</Badge>
-            <Badge variant="secondary">Real-time Preview</Badge>
-            <Badge variant="secondary">Multiple Formats</Badge>
-          </div>
+          <p className="text-lg text-gray-600">Create professional Instagram banners optimized for mobile viewing</p>
+          <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white">
+            Mobile Optimized • High Quality Downloads • Full Screen Space
+          </Badge>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          {/* Editor Controls */}
-          <div className="xl:col-span-1 space-y-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="content" className="text-xs">
-                  <Edit className="w-4 h-4" />
-                </TabsTrigger>
-                <TabsTrigger value="images" className="text-xs">
-                  <ImageIcon className="w-4 h-4" />
-                </TabsTrigger>
-                <TabsTrigger value="design" className="text-xs">
-                  <Palette className="w-4 h-4" />
-                </TabsTrigger>
-                <TabsTrigger value="export" className="text-xs">
-                  <Download className="w-4 h-4" />
-                </TabsTrigger>
-              </TabsList>
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Editor Panel */}
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-6 h-6 text-purple-500" />
+                Banner Editor
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="content" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="content">Content</TabsTrigger>
+                  <TabsTrigger value="filters">Filters</TabsTrigger>
+                  <TabsTrigger value="typography">Typography</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="content" className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Type className="w-5 h-5" />
-                      Text Content
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="shopName" className="text-sm font-medium">
-                        Shop/Brand Name
-                      </Label>
+                <TabsContent value="content" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="shopName">Shop Name</Label>
                       <Input
                         id="shopName"
+                        placeholder="Enter your shop name"
                         value={bannerData.shopName}
-                        onChange={(e) => handleInputChange("shopName", e.target.value)}
-                        placeholder="Enter your brand name"
-                        className="mt-1"
+                        onChange={(e) => setBannerData((prev) => ({ ...prev, shopName: e.target.value }))}
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="productName" className="text-sm font-medium">
-                        Product Name
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="productName">Product Name</Label>
                       <Input
                         id="productName"
-                        value={bannerData.productName}
-                        onChange={(e) => handleInputChange("productName", e.target.value)}
                         placeholder="Enter product name"
-                        className="mt-1"
+                        value={bannerData.productName}
+                        onChange={(e) => setBannerData((prev) => ({ ...prev, productName: e.target.value }))}
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="description" className="text-sm font-medium">
-                        Description
-                      </Label>
-                      <Textarea
-                        id="description"
-                        value={bannerData.description}
-                        onChange={(e) => handleInputChange("description", e.target.value)}
-                        placeholder="Enter a compelling description"
-                        rows={3}
-                        className="mt-1 resize-none"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="price" className="text-sm font-medium">
-                        Price
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="price">Price</Label>
                       <Input
                         id="price"
+                        placeholder="Enter price (without currency symbol)"
                         value={bannerData.price}
-                        onChange={(e) => handleInputChange("price", e.target.value)}
-                        placeholder="$99.99"
-                        className="mt-1"
+                        onChange={(e) => setBannerData((prev) => ({ ...prev, price: e.target.value }))}
                       />
                     </div>
 
-                    {bannerData.designTheme === "inspirational_vibes" && (
-                      <>
-                        <Separator />
-                        <div className="space-y-4">
-                          <h4 className="font-medium text-sm text-gray-700">Inspirational Content</h4>
-
-                          <div>
-                            <Label htmlFor="inspirationalText">Inspirational Text</Label>
-                            <Textarea
-                              id="inspirationalText"
-                              value={bannerData.inspirationalText}
-                              onChange={(e) => handleInputChange("inspirationalText", e.target.value)}
-                              placeholder="Enter motivational message"
-                              rows={2}
-                              className="mt-1"
-                            />
-                          </div>
-
-                          <div>
-                            <Label htmlFor="authorName">Author Name</Label>
-                            <Input
-                              id="authorName"
-                              value={bannerData.authorName}
-                              onChange={(e) => handleInputChange("authorName", e.target.value)}
-                              placeholder="Enter author name"
-                              className="mt-1"
-                            />
-                          </div>
-
-                          <div>
-                            <Label htmlFor="dateText">Date/Month</Label>
-                            <Input
-                              id="dateText"
-                              value={bannerData.dateText}
-                              onChange={(e) => handleInputChange("dateText", e.target.value)}
-                              placeholder="January 2024"
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="images" className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Upload className="w-5 h-5" />
-                      Images
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <DragDropZone
-                      onFileUpload={(file) => handleImageUpload("productImage", file)}
-                      currentImage={bannerData.productImage}
-                      label="Main Product Image"
-                    />
-
-                    <DragDropZone
-                      onFileUpload={(file) => handleImageUpload("horizontalImage", file)}
-                      currentImage={bannerData.horizontalImage}
-                      label="Background Image"
-                    />
-
-                    <Separator />
-
                     <MultiImageUploader
-                      onFilesUpload={handleMultipleImageUpload}
-                      currentImages={currentImages}
-                      labels={["Vertical 1", "Vertical 2", "Vertical 3"]}
-                      maxImages={3}
+                      currentImages={{
+                        main: bannerData.productImage,
+                        story: bannerData.productImage,
+                        horizontal: bannerData.horizontalImage,
+                        vertical1: bannerData.verticalImage1,
+                        vertical2: bannerData.verticalImage2,
+                        vertical3: bannerData.verticalImage3,
+                      }}
+                      onImagesChange={handleMultiImageUpload}
                     />
 
-                    {bannerData.designTheme === "inspirational_vibes" && (
-                      <>
-                        <Separator />
-                        <div className="space-y-4">
-                          <h4 className="font-medium text-sm text-gray-700">Inspirational Images</h4>
-
-                          <DragDropZone
-                            onFileUpload={(file) => handleImageUpload("inspirationalImage1", file)}
-                            currentImage={bannerData.inspirationalImage1}
-                            label="Main Inspirational Image"
-                            compact
-                          />
-
-                          <DragDropZone
-                            onFileUpload={(file) => handleImageUpload("inspirationalImage2", file)}
-                            currentImage={bannerData.inspirationalImage2}
-                            label="Secondary Image (Optional)"
-                            compact
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <h4 className="text-sm font-medium text-blue-900 mb-2">Upload Tips</h4>
-                      <ul className="text-xs text-blue-700 space-y-1">
-                        <li>• Use high-quality images for best results</li>
-                        <li>• Supported formats: JPG, PNG, WebP, GIF</li>
-                        <li>• Maximum file size: 10MB</li>
-                        <li>• Images will be automatically optimized</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="design" className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Palette className="w-5 h-5" />
-                      Design Theme
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium">Theme Style</Label>
+                    <div className="space-y-2">
+                      <Label>Design Theme</Label>
                       <Select
                         value={bannerData.designTheme}
-                        onValueChange={(value) => handleInputChange("designTheme", value)}
+                        onValueChange={(value: any) => setBannerData((prev) => ({ ...prev, designTheme: value }))}
                       >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select theme" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="social_gallery">🖼️ Social Gallery</SelectItem>
-                          <SelectItem value="instagram_mood">🎨 Instagram Mood</SelectItem>
-                          <SelectItem value="minimalist">✨ Minimalist</SelectItem>
-                          <SelectItem value="vibrant">🌈 Vibrant</SelectItem>
-                          <SelectItem value="elegant_cursive">✍️ Elegant Cursive</SelectItem>
-                          <SelectItem value="inspirational_vibes">💫 Inspirational Vibes</SelectItem>
-                          <SelectItem value="maritime_adventure">🌊 Maritime Adventure</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-gray-500 mt-2">{getThemeDescription(bannerData.designTheme)}</p>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <Label className="text-sm font-medium">Output Resolution</Label>
-                      <Select
-                        value={bannerData.resolution}
-                        onValueChange={(value) => handleInputChange("resolution", value)}
-                      >
-                        <SelectTrigger className="mt-1">
+                        <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1080">📱 HD (1920×1080)</SelectItem>
-                          <SelectItem value="4k">🖥️ 4K (3840×2160)</SelectItem>
+                          <SelectItem value="social_gallery">Social Gallery Post</SelectItem>
+                          <SelectItem value="instagram_mood">Instagram Mood Board</SelectItem>
+                          <SelectItem value="inspirational_vibes">Inspirational Vibes</SelectItem>
+                          <SelectItem value="minimalist">Minimalist Chic</SelectItem>
+                          <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
+                          <SelectItem value="elegant_cursive">Elegant Cursive</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
-              <TabsContent value="export" className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Download className="w-5 h-5" />
-                      Export Options
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Button
-                      onClick={generateBanner}
-                      disabled={isGenerating}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                      size="lg"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      {isGenerating ? "Generating..." : "Generate Preview"}
-                    </Button>
+                    <div className="space-y-2">
+                      <Label>Instagram Format</Label>
+                      <Select
+                        value={bannerData.resolution}
+                        onValueChange={(value: any) => setBannerData((prev) => ({ ...prev, resolution: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="instagram_post">
+                            <div className="flex items-center gap-2">
+                              <Instagram className="w-4 h-4" />
+                              Instagram Post (1080×1080)
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="instagram_story">
+                            <div className="flex items-center gap-2">
+                              <Smartphone className="w-4 h-4" />
+                              Instagram Story (1080×1920)
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="hd">Standard HD (1920×1080)</SelectItem>
+                          <SelectItem value="4k">4K Ultra HD (3840×2160)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </TabsContent>
 
-                    <Separator />
+                <TabsContent value="filters" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Select Image to Edit</Label>
+                      <Select value={selectedImageForFilter} onValueChange={setSelectedImageForFilter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="productImage">Product Image</SelectItem>
+                          <SelectItem value="horizontalImage">Horizontal Image</SelectItem>
+                          <SelectItem value="verticalImage1">Vertical Image 1</SelectItem>
+                          <SelectItem value="verticalImage2">Vertical Image 2</SelectItem>
+                          <SelectItem value="verticalImage3">Vertical Image 3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <div>
-                      <Label className="text-sm font-medium mb-3 block">Download Formats</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          onClick={() => downloadBanner("png")}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <div className="w-2 h-2 bg-blue-500 rounded"></div>
-                          PNG
-                        </Button>
-                        <Button
-                          onClick={() => downloadBanner("jpg")}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <div className="w-2 h-2 bg-green-500 rounded"></div>
-                          JPG
-                        </Button>
-                        <Button
-                          onClick={() => downloadBanner("webp")}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <div className="w-2 h-2 bg-purple-500 rounded"></div>
-                          WebP
-                        </Button>
-                        <Button
-                          onClick={() => downloadBanner("pdf")}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <div className="w-2 h-2 bg-red-500 rounded"></div>
-                          PDF
-                        </Button>
+                    <div className="space-y-2">
+                      <Label>Filter Presets</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {Object.keys(filterPresets).map((preset) => (
+                          <Button
+                            key={preset}
+                            variant={currentFilters.preset === preset ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => applyFilterPreset(preset)}
+                            className="capitalize text-xs"
+                          >
+                            {preset === "mobile_optimized" ? "Mobile" : preset}
+                          </Button>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <p>• PNG: Best for transparency</p>
-                      <p>• JPG: Smaller file size</p>
-                      <p>• WebP: Modern format</p>
-                      <p>• PDF: Print ready</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Brightness: {currentFilters.brightness}%</Label>
+                        <Slider
+                          value={[currentFilters.brightness]}
+                          onValueChange={([value]) => updateFilter("brightness", value)}
+                          min={0}
+                          max={200}
+                          step={1}
+                        />
+                      </div>
 
-          {/* Preview Area */}
-          <div className="xl:col-span-3">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    Live Preview
-                  </span>
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {bannerData.resolution === "4k" ? "4K Quality" : "HD Quality"}
-                    </Badge>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-inner">
-                  <div className="text-center text-gray-500">
-                    <div className="w-24 h-24 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <Eye className="w-12 h-12 text-gray-400" />
+                      <div className="space-y-2">
+                        <Label>Contrast: {currentFilters.contrast}%</Label>
+                        <Slider
+                          value={[currentFilters.contrast]}
+                          onValueChange={([value]) => updateFilter("contrast", value)}
+                          min={0}
+                          max={200}
+                          step={1}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Saturation: {currentFilters.saturation}%</Label>
+                        <Slider
+                          value={[currentFilters.saturation]}
+                          onValueChange={([value]) => updateFilter("saturation", value)}
+                          min={0}
+                          max={200}
+                          step={1}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>HDR Effect: {currentFilters.hdr}%</Label>
+                        <Slider
+                          value={[currentFilters.hdr]}
+                          onValueChange={([value]) => updateFilter("hdr", value)}
+                          min={0}
+                          max={50}
+                          step={1}
+                        />
+                      </div>
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">Preview Your Banner</h3>
-                    <p className="text-sm max-w-md">
-                      Upload images and add content, then click "Generate Preview" to see your banner
-                    </p>
-                    <div className="flex justify-center gap-2 mt-4">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-100"></div>
-                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-200"></div>
+
+                    <div className="space-y-2">
+                      <Label>Filter Preview</Label>
+                      <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                        {bannerData[selectedImageForFilter as keyof typeof bannerData] ? (
+                          <img
+                            src={
+                              (bannerData[selectedImageForFilter as keyof typeof bannerData] as string) ||
+                              "/placeholder.svg" ||
+                              "/placeholder.svg"
+                            }
+                            alt="Filter Preview"
+                            className="max-w-full max-h-full object-contain rounded"
+                            style={{ filter: getFilterString(currentFilters) }}
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-center">
+                            <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                            <p className="text-sm">Upload an image to see filter preview</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="typography" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-3 p-4 border rounded-lg">
+                      <Label className="font-semibold">Shop Name</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label>Font Family</Label>
+                          <Select
+                            value={bannerData.textStyles.shopNameFont}
+                            onValueChange={(value) => updateTextStyle("shopNameFont", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(fontOptions).map(([key, value]) => (
+                                <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                  {key}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Font Size: {bannerData.textStyles.shopNameSize}px</Label>
+                          <Slider
+                            value={[bannerData.textStyles.shopNameSize]}
+                            onValueChange={([value]) => updateTextStyle("shopNameSize", value)}
+                            min={12}
+                            max={72}
+                            step={1}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 p-4 border rounded-lg">
+                      <Label className="font-semibold">Product Name</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label>Font Family</Label>
+                          <Select
+                            value={bannerData.textStyles.productNameFont}
+                            onValueChange={(value) => updateTextStyle("productNameFont", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(fontOptions).map(([key, value]) => (
+                                <SelectItem key={key} value={key} style={{ fontFamily: value }}>
+                                  {key}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Font Size: {bannerData.textStyles.productNameSize}px</Label>
+                          <Slider
+                            value={[bannerData.textStyles.productNameSize]}
+                            onValueChange={([value]) => updateTextStyle("productNameSize", value)}
+                            min={12}
+                            max={72}
+                            step={1}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="space-y-4 pt-6 border-t">
+                <Button
+                  onClick={() => downloadBanner("png")}
+                  disabled={!bannerData.shopName || !bannerData.productName || isGenerating}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                  size="lg"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {isGenerating ? "Generating..." : "Download Instagram Banner"}
+                </Button>
+
+                <div className="grid grid-cols-3 gap-2">
+                  {["png", "jpg", "webp"].map((format) => (
+                    <Button
+                      key={format}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadBanner(format)}
+                      disabled={isGenerating}
+                    >
+                      {format.toUpperCase()}
+                    </Button>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Preview Panel - Full Screen Optimized */}
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-6 h-6 text-blue-500" />
+                Full Screen Preview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-2">
+              <div
+                className={`bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden relative ${
+                  bannerData.resolution === "instagram_story" ? "aspect-[9/16]" : "aspect-square"
+                }`}
+              >
+                {bannerData.shopName || bannerData.productName ? (
+                  <div className="w-full h-full bg-white flex flex-col">
+                    {/* Maximized image space */}
+                    {bannerData.productImage ? (
+                      <div className="flex-1 overflow-hidden">
+                        <img
+                          src={bannerData.productImage || "/placeholder.svg"}
+                          alt="Product"
+                          className="w-full h-full object-cover"
+                          style={{ filter: getFilterString(bannerData.imageFilters.productImage) }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-1 bg-gray-200 flex items-center justify-center">
+                        <span className="text-6xl">📷</span>
+                      </div>
+                    )}
+
+                    {/* Compact text section at bottom */}
+                    <div className="bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 p-4 text-white">
+                      <div className="text-center space-y-1">
+                        {bannerData.shopName && (
+                          <h2 className="text-xl font-bold text-white drop-shadow-lg">{bannerData.shopName}</h2>
+                        )}
+
+                        <div className="flex justify-between items-center">
+                          {bannerData.productName && <p className="text-lg text-gray-200">{bannerData.productName}</p>}
+                          {bannerData.price && <p className="text-lg font-bold text-yellow-400">${bannerData.price}</p>}
+                        </div>
+
+                        {/* Decorative line */}
+                        <div className="w-16 h-0.5 bg-yellow-400 mx-auto mt-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <div className="text-center">
+                      <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p>Enter details to see full screen preview</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

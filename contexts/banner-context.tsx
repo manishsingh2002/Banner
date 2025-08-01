@@ -47,7 +47,7 @@ export interface BannerData {
   verticalImage3: string | null
   inspirationalImage1: string | null
   inspirationalImage2: string | null
-  resolution: "1080" | "4k"
+  resolution: "instagram_post" | "instagram_story" | "hd" | "4k"
   designTheme:
     | "social_gallery"
     | "instagram_mood"
@@ -132,7 +132,7 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     verticalImage3: null,
     inspirationalImage1: null,
     inspirationalImage2: null,
-    resolution: "1080",
+    resolution: "instagram_post",
     designTheme: "social_gallery",
     description: "",
     photographer: "",
@@ -166,6 +166,22 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  // Get optimal dimensions for different platforms
+  const getCanvasDimensions = (resolution: string) => {
+    switch (resolution) {
+      case "instagram_post":
+        return { width: 1080, height: 1080 } // Perfect Instagram square
+      case "instagram_story":
+        return { width: 1080, height: 1920 } // Instagram Story 9:16
+      case "hd":
+        return { width: 1920, height: 1080 } // Standard HD
+      case "4k":
+        return { width: 3840, height: 2160 } // 4K resolution
+      default:
+        return { width: 1080, height: 1080 }
+    }
+  }
+
   const generateBanner = async () => {
     if (!canvasRef.current) return
 
@@ -176,15 +192,17 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
       if (!ctx) return
 
       // Set canvas dimensions based on resolution
-      const width = bannerData.resolution === "4k" ? 3840 : 1920
-      const height = bannerData.resolution === "4k" ? 2160 : 1080
+      const dimensions = getCanvasDimensions(bannerData.resolution)
+      canvas.width = dimensions.width
+      canvas.height = dimensions.height
 
-      canvas.width = width
-      canvas.height = height
+      // Enable high-quality rendering
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = "high"
 
-      // Clear canvas
+      // Clear canvas with white background
       ctx.fillStyle = "#ffffff"
-      ctx.fillRect(0, 0, width, height)
+      ctx.fillRect(0, 0, dimensions.width, dimensions.height)
 
       // Load all images first
       const imagePromises: Promise<void>[] = []
@@ -211,7 +229,7 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
       await Promise.all(imagePromises)
 
       // Generate banner based on theme
-      await renderBannerTheme(ctx, width, height)
+      await renderBannerTheme(ctx, dimensions.width, dimensions.height)
     } catch (error) {
       console.error("Error generating banner:", error)
     } finally {
@@ -220,90 +238,467 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
   }
 
   const renderBannerTheme = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Calculate scale factor for responsive text and elements
+    const baseWidth = 1080
+    const scale = width / baseWidth
+
     switch (bannerData.designTheme) {
       case "maritime_adventure":
-        await renderMaritimeAdventure(ctx, width, height)
+        await renderMaritimeAdventure(ctx, width, height, scale)
         break
       case "social_gallery":
-        await renderSocialGallery(ctx, width, height)
+        await renderSocialGallery(ctx, width, height, scale)
         break
       case "instagram_mood":
-        await renderInstagramMood(ctx, width, height)
+        await renderInstagramMood(ctx, width, height, scale)
         break
       case "minimalist":
-        await renderMinimalist(ctx, width, height)
+        await renderMinimalist(ctx, width, height, scale)
         break
       case "vibrant":
-        await renderVibrant(ctx, width, height)
+        await renderVibrant(ctx, width, height, scale)
         break
       case "elegant_cursive":
-        await renderElegantCursive(ctx, width, height)
+        await renderElegantCursive(ctx, width, height, scale)
         break
       case "inspirational_vibes":
-        await renderInspirationalVibes(ctx, width, height)
+        await renderInspirationalVibes(ctx, width, height, scale)
         break
       default:
-        await renderDefaultTheme(ctx, width, height)
+        await renderDefaultTheme(ctx, width, height, scale)
         break
     }
   }
 
-  const renderMaritimeAdventure = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Background gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, height)
-    gradient.addColorStop(0, "#4A90A4")
-    gradient.addColorStop(1, "#2C5F6F")
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, width, height)
+  const applyImageFilters = (
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    filters: ImageFilters,
+  ) => {
+    // Create filter string
+    let filterString = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`
 
-    // Draw images if available
-    if (bannerData.horizontalImage && loadedImages[bannerData.horizontalImage]) {
-      const img = loadedImages[bannerData.horizontalImage]
-      ctx.drawImage(img, width * 0.1, height * 0.1, width * 0.8, height * 0.4)
+    if (filters.blur > 0) filterString += ` blur(${filters.blur}px)`
+    if (filters.sepia > 0) filterString += ` sepia(${filters.sepia}%)`
+    if (filters.grayscale > 0) filterString += ` grayscale(${filters.grayscale}%)`
+    if (filters.hueRotate !== 0) filterString += ` hue-rotate(${filters.hueRotate}deg)`
+
+    // Apply filters and draw image
+    ctx.save()
+    ctx.filter = filterString
+    ctx.drawImage(img, x, y, width, height)
+    ctx.restore()
+
+    // Apply advanced effects
+    if (filters.hdr > 0) {
+      ctx.save()
+      ctx.globalCompositeOperation = "overlay"
+      ctx.globalAlpha = filters.hdr / 100
+      ctx.drawImage(img, x, y, width, height)
+      ctx.restore()
     }
 
-    if (bannerData.verticalImage1 && loadedImages[bannerData.verticalImage1]) {
-      const img = loadedImages[bannerData.verticalImage1]
-      ctx.drawImage(img, width * 0.1, height * 0.55, width * 0.8, height * 0.3)
+    if (filters.vignette > 0) {
+      const gradient = ctx.createRadialGradient(
+        x + width / 2,
+        y + height / 2,
+        0,
+        x + width / 2,
+        y + height / 2,
+        Math.max(width, height) / 2,
+      )
+      gradient.addColorStop(0, "transparent")
+      gradient.addColorStop(1, `rgba(0, 0, 0, ${filters.vignette / 100})`)
+      ctx.fillStyle = gradient
+      ctx.fillRect(x, y, width, height)
     }
 
-    // Text styling
-    ctx.fillStyle = "#FFFFFF"
-    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
-    ctx.textAlign = "center"
+    if (filters.filmGrain > 0) {
+      // Add film grain effect
+      const grainCanvas = document.createElement("canvas")
+      const grainCtx = grainCanvas.getContext("2d")!
+      grainCanvas.width = width
+      grainCanvas.height = height
 
-    // Main title
-    if (bannerData.shopName) {
-      ctx.fillText(bannerData.shopName, width * 0.7, height * 0.75)
-    }
+      const imageData = grainCtx.createImageData(width, height)
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const grain = (Math.random() - 0.5) * filters.filmGrain * 2
+        imageData.data[i] = 128 + grain
+        imageData.data[i + 1] = 128 + grain
+        imageData.data[i + 2] = 128 + grain
+        imageData.data[i + 3] = Math.abs(grain) * 2
+      }
+      grainCtx.putImageData(imageData, 0, 0)
 
-    // Subtitle
-    ctx.font = `${bannerData.textStyles.productNameSize}px ${bannerData.textStyles.productNameFont}`
-    if (bannerData.productName) {
-      ctx.fillText(bannerData.productName, width * 0.7, height * 0.82)
+      ctx.save()
+      ctx.globalCompositeOperation = "overlay"
+      ctx.globalAlpha = 0.3
+      ctx.drawImage(grainCanvas, x, y)
+      ctx.restore()
     }
   }
 
-  const renderSocialGallery = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Simple social gallery layout
+  const renderSocialGallery = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
+    // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, height)
     gradient.addColorStop(0, "#f8fafc")
     gradient.addColorStop(1, "#e2e8f0")
     ctx.fillStyle = gradient
     ctx.fillRect(0, 0, width, height)
 
+    // Main container with proper mobile optimization
+    const margin = 40 * scale
+    const containerWidth = width - margin * 2
+    const containerHeight = height - margin * 2
+    const containerX = margin
+    const containerY = margin
+
+    // White background container
+    ctx.fillStyle = "#ffffff"
+    ctx.shadowColor = "rgba(0, 0, 0, 0.1)"
+    ctx.shadowBlur = 20 * scale
+    ctx.shadowOffsetY = 5 * scale
+    ctx.beginPath()
+    ctx.roundRect(containerX, containerY, containerWidth, containerHeight, 20 * scale)
+    ctx.fill()
+    ctx.shadowColor = "transparent"
+
+    // Header section
+    const headerHeight = 80 * scale
+    const headerY = containerY + 20 * scale
+
+    ctx.fillStyle = "#1e293b"
+    ctx.beginPath()
+    ctx.roundRect(containerX + 20 * scale, headerY, containerWidth - 40 * scale, headerHeight, 15 * scale)
+    ctx.fill()
+
+    // Shop name in header
+    if (bannerData.shopName) {
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `bold ${bannerData.textStyles.shopNameSize * scale}px ${bannerData.textStyles.shopNameFont}`
+      ctx.textAlign = "center"
+      ctx.fillText(bannerData.shopName, containerX + containerWidth / 2, headerY + headerHeight / 2 + 12 * scale)
+    }
+
+    // Main image section
+    const mainImageY = headerY + headerHeight + 25 * scale
+    const mainImageHeight = containerHeight * 0.45
+    const mainImageWidth = containerWidth - 50 * scale
+    const mainImageX = containerX + 25 * scale
+
+    if (bannerData.horizontalImage && loadedImages[bannerData.horizontalImage]) {
+      const img = loadedImages[bannerData.horizontalImage]
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(mainImageX, mainImageY, mainImageWidth, mainImageHeight, 15 * scale)
+      ctx.clip()
+      applyImageFilters(
+        ctx,
+        img,
+        mainImageX,
+        mainImageY,
+        mainImageWidth,
+        mainImageHeight,
+        bannerData.imageFilters.horizontalImage,
+      )
+      ctx.restore()
+    }
+
+    // Three vertical images
+    const verticalImagesY = mainImageY + mainImageHeight + 20 * scale
+    const verticalImageHeight = containerHeight * 0.22
+    const verticalImageWidth = (mainImageWidth - 20 * scale) / 3
+
+    const verticalImages = [bannerData.verticalImage1, bannerData.verticalImage2, bannerData.verticalImage3]
+    const verticalFilters = [
+      bannerData.imageFilters.verticalImage1,
+      bannerData.imageFilters.verticalImage2,
+      bannerData.imageFilters.verticalImage3,
+    ]
+
+    for (let i = 0; i < verticalImages.length; i++) {
+      const imageSrc = verticalImages[i]
+      const imageX = mainImageX + i * (verticalImageWidth + 10 * scale)
+
+      if (imageSrc && loadedImages[imageSrc]) {
+        const img = loadedImages[imageSrc]
+        ctx.save()
+        ctx.beginPath()
+        ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
+        ctx.clip()
+        applyImageFilters(
+          ctx,
+          img,
+          imageX,
+          verticalImagesY,
+          verticalImageWidth,
+          verticalImageHeight,
+          verticalFilters[i],
+        )
+        ctx.restore()
+      }
+    }
+
+    // Text content
+    const textStartY = verticalImagesY + verticalImageHeight + 30 * scale
+
+    if (bannerData.productName) {
+      ctx.fillStyle = "#1e293b"
+      ctx.font = `bold ${bannerData.textStyles.productNameSize * scale}px ${bannerData.textStyles.productNameFont}`
+      ctx.textAlign = "left"
+      ctx.fillText(bannerData.productName, containerX + 25 * scale, textStartY)
+    }
+
+    if (bannerData.description) {
+      ctx.fillStyle = "#374151"
+      ctx.font = `${bannerData.textStyles.descriptionSize * scale}px ${bannerData.textStyles.descriptionFont}`
+      ctx.textAlign = "left"
+
+      // Word wrap for description
+      const maxWidth = containerWidth - 50 * scale
+      const words = bannerData.description.split(" ")
+      let line = ""
+      let y = textStartY + 35 * scale
+      const lineHeight = 25 * scale
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " "
+        const metrics = ctx.measureText(testLine)
+
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, containerX + 25 * scale, y)
+          line = words[n] + " "
+          y += lineHeight
+        } else {
+          line = testLine
+        }
+      }
+      ctx.fillText(line, containerX + 25 * scale, y)
+    }
+
+    // Price at bottom
+    if (bannerData.price) {
+      const footerY = containerY + containerHeight - 35 * scale
+      ctx.fillStyle = "#fbbf24"
+      ctx.font = `bold ${bannerData.textStyles.priceSize * scale}px ${bannerData.textStyles.priceFont}`
+      ctx.textAlign = "center"
+      ctx.fillText(`$${bannerData.price}`, containerX + containerWidth / 2, footerY)
+    }
+  }
+
+  const renderInstagramMood = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
+    // Optimized for Instagram square format
+    const frameMargin = 60 * scale
+    const frameWidth = width - frameMargin * 2
+    const frameHeight = height * 0.85
+    const frameX = frameMargin
+    const frameY = (height - frameHeight) / 2
+
+    // White frame background
+    ctx.fillStyle = "#ffffff"
+    ctx.shadowColor = "rgba(0, 0, 0, 0.15)"
+    ctx.shadowBlur = 25 * scale
+    ctx.shadowOffsetY = 8 * scale
+    ctx.beginPath()
+    ctx.roundRect(frameX, frameY, frameWidth, frameHeight, 20 * scale)
+    ctx.fill()
+    ctx.shadowColor = "transparent"
+
+    // Header with shop name
+    if (bannerData.shopName) {
+      ctx.fillStyle = "#2d5a3d"
+      ctx.font = `${Math.min(48 * scale, frameWidth / 8)}px Dancing Script, cursive`
+      ctx.textAlign = "left"
+      ctx.fillText(bannerData.shopName, frameX + 30 * scale, frameY + 60 * scale)
+    }
+
+    // Plus decoration
+    ctx.fillStyle = "#2d5a3d"
+    ctx.font = `${20 * scale}px Inter, sans-serif`
+    ctx.textAlign = "right"
+    const plusX = frameX + frameWidth - 30 * scale
+    const plusY = frameY + 40 * scale
+    for (let i = 0; i < 4; i++) {
+      ctx.fillText("+", plusX - (i % 2) * 15 * scale, plusY + Math.floor(i / 2) * 20 * scale)
+    }
+
     // Main product image
     if (bannerData.productImage && loadedImages[bannerData.productImage]) {
       const img = loadedImages[bannerData.productImage]
-      const imgSize = Math.min(width, height) * 0.6
-      const x = (width - imgSize) / 2
-      const y = height * 0.1
-      ctx.drawImage(img, x, y, imgSize, imgSize)
+      const imageMargin = 30 * scale
+      const imageWidth = frameWidth - imageMargin * 2
+      const imageHeight = frameHeight * 0.6
+      const imageX = frameX + imageMargin
+      const imageY = frameY + 90 * scale
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 15 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageWidth, imageHeight, bannerData.imageFilters.productImage)
+      ctx.restore()
     }
 
-    // Text
+    // Color palette
+    const paletteY = frameY + frameHeight - 80 * scale
+    const colors = ["#7a9b8e", "#5a7c6f", "#8fa69a", "#6b8578", "#4a6b5c"]
+    const swatchSize = 15 * scale
+    const paletteX = frameX + 30 * scale
+
+    ctx.fillStyle = "#2d5a3d"
+    ctx.font = `bold ${12 * scale}px Inter, sans-serif`
+    ctx.textAlign = "left"
+    ctx.fillText("COLOR PALLET", paletteX, paletteY - 10 * scale)
+
+    colors.forEach((color, index) => {
+      ctx.fillStyle = color
+      ctx.fillRect(paletteX + index * (swatchSize + 5 * scale), paletteY, swatchSize, swatchSize)
+    })
+
+    // Product info
+    if (bannerData.productName || bannerData.description) {
+      const infoY = frameY + frameHeight - 40 * scale
+      ctx.fillStyle = "rgba(45, 90, 61, 0.9)"
+      ctx.beginPath()
+      ctx.roundRect(frameX + frameWidth - 200 * scale, infoY - 25 * scale, 180 * scale, 50 * scale, 10 * scale)
+      ctx.fill()
+
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `${10 * scale}px Inter, sans-serif`
+      ctx.textAlign = "left"
+      if (bannerData.productName) {
+        ctx.fillText(`product: ${bannerData.productName}`, frameX + frameWidth - 190 * scale, infoY - 10 * scale)
+      }
+      if (bannerData.description) {
+        ctx.fillText(
+          bannerData.description.substring(0, 30) + "...",
+          frameX + frameWidth - 190 * scale,
+          infoY + 5 * scale,
+        )
+      }
+    }
+  }
+
+  const renderInspirationalVibes = async (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    scale: number,
+  ) => {
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, width, height)
+    gradient.addColorStop(0, "#4a90a4")
+    gradient.addColorStop(0.5, "#5ba3b8")
+    gradient.addColorStop(1, "#6bb6cc")
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+
+    // Top section
+    const topHeight = height * 0.4
+
+    // Author name
+    if (bannerData.authorName) {
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `${bannerData.textStyles.authorNameSize * scale}px ${bannerData.textStyles.authorNameFont}`
+      ctx.textAlign = "right"
+      ctx.fillText(bannerData.authorName, width - 40 * scale, 60 * scale)
+    }
+
+    // Main title
+    if (bannerData.productName) {
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `bold ${Math.min(bannerData.textStyles.productNameSize * scale, width / 10)}px ${bannerData.textStyles.productNameFont}`
+      ctx.textAlign = "left"
+      ctx.fillText(bannerData.productName, 40 * scale, topHeight - 60 * scale)
+    }
+
+    // Bottom card
+    const cardY = topHeight
+    const cardHeight = height - topHeight - 40 * scale
+    const cardMargin = 30 * scale
+
+    ctx.fillStyle = "#ffffff"
+    ctx.shadowColor = "rgba(0, 0, 0, 0.2)"
+    ctx.shadowBlur = 30 * scale
+    ctx.shadowOffsetY = 10 * scale
+    ctx.beginPath()
+    ctx.roundRect(cardMargin, cardY, width - cardMargin * 2, cardHeight, 25 * scale)
+    ctx.fill()
+    ctx.shadowColor = "transparent"
+
+    // Main inspirational image
+    if (bannerData.inspirationalImage1 && loadedImages[bannerData.inspirationalImage1]) {
+      const img = loadedImages[bannerData.inspirationalImage1]
+      const imageMargin = 50 * scale
+      const imageWidth = width - cardMargin * 2 - imageMargin * 2
+      const imageHeight = cardHeight * 0.5
+      const imageX = cardMargin + imageMargin
+      const imageY = cardY + 60 * scale
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 20 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageWidth, imageHeight, bannerData.imageFilters.inspirationalImage1)
+      ctx.restore()
+    }
+
+    // Inspirational text
+    if (bannerData.inspirationalText) {
+      const textY = cardY + cardHeight * 0.65
+      ctx.fillStyle = "#374151"
+      ctx.font = `${bannerData.textStyles.inspirationalTextSize * scale}px ${bannerData.textStyles.inspirationalTextFont}`
+      ctx.textAlign = "left"
+
+      const maxWidth = width * 0.7
+      const words = bannerData.inspirationalText.split(" ")
+      let line = ""
+      let y = textY
+      const lineHeight = 25 * scale
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " "
+        const metrics = ctx.measureText(testLine)
+
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, 60 * scale, y)
+          line = words[n] + " "
+          y += lineHeight
+        } else {
+          line = testLine
+        }
+      }
+      ctx.fillText(line, 60 * scale, y)
+    }
+  }
+
+  const renderMinimalist = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
+    // Clean white background
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, width, height)
+
+    // Single centered image
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imageSize = Math.min(width, height) * 0.6
+      const imageX = (width - imageSize) / 2
+      const imageY = (height - imageSize) / 2 - height * 0.1
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageSize, imageSize, 20 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageSize, imageSize, bannerData.imageFilters.productImage)
+      ctx.restore()
+    }
+
+    // Minimal text
     ctx.fillStyle = "#1e293b"
-    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.font = `300 ${bannerData.textStyles.shopNameSize * scale}px ${bannerData.textStyles.shopNameFont}`
     ctx.textAlign = "center"
 
     if (bannerData.shopName) {
@@ -311,67 +706,14 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (bannerData.productName) {
-      ctx.font = `${bannerData.textStyles.productNameSize}px ${bannerData.textStyles.productNameFont}`
+      ctx.font = `400 ${bannerData.textStyles.productNameSize * scale}px ${bannerData.textStyles.productNameFont}`
       ctx.fillStyle = "#64748b"
       ctx.fillText(bannerData.productName, width / 2, height * 0.85)
     }
   }
 
-  const renderInstagramMood = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Instagram mood board style
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, width, height)
-
-    // Create mood board layout with images
-    const images = [bannerData.productImage, bannerData.horizontalImage, bannerData.verticalImage1].filter(Boolean)
-
-    images.forEach((imageSrc, index) => {
-      if (imageSrc && loadedImages[imageSrc]) {
-        const img = loadedImages[imageSrc]
-        const x = (index % 2) * (width / 2) + width * 0.1
-        const y = Math.floor(index / 2) * (height / 3) + height * 0.1
-        const w = width * 0.35
-        const h = height * 0.25
-        ctx.drawImage(img, x, y, w, h)
-      }
-    })
-
-    // Add text overlay
-    ctx.fillStyle = "#2d5a3d"
-    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
-    ctx.textAlign = "center"
-
-    if (bannerData.shopName) {
-      ctx.fillText(bannerData.shopName, width / 2, height * 0.85)
-    }
-  }
-
-  const renderMinimalist = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Clean minimalist design
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, width, height)
-
-    // Single centered image
-    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
-      const img = loadedImages[bannerData.productImage]
-      const imgSize = Math.min(width, height) * 0.5
-      const x = (width - imgSize) / 2
-      const y = (height - imgSize) / 2 - height * 0.1
-      ctx.drawImage(img, x, y, imgSize, imgSize)
-    }
-
-    // Minimal text
-    ctx.fillStyle = "#000000"
-    ctx.font = `300 ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
-    ctx.textAlign = "center"
-
-    if (bannerData.shopName) {
-      ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
-    }
-  }
-
-  const renderVibrant = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Vibrant colorful design
+  const renderVibrant = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
+    // Vibrant gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height)
     gradient.addColorStop(0, "#fbbf24")
     gradient.addColorStop(0.5, "#f59e0b")
@@ -382,28 +724,54 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     // Product image with vibrant border
     if (bannerData.productImage && loadedImages[bannerData.productImage]) {
       const img = loadedImages[bannerData.productImage]
-      const imgSize = Math.min(width, height) * 0.6
-      const x = (width - imgSize) / 2
-      const y = height * 0.1
+      const imageSize = Math.min(width, height) * 0.6
+      const imageX = (width - imageSize) / 2
+      const imageY = height * 0.15
+      const borderWidth = 10 * scale
 
-      // Add colorful border
+      // Colorful border
       ctx.fillStyle = "#ffffff"
-      ctx.fillRect(x - 10, y - 10, imgSize + 20, imgSize + 20)
-      ctx.drawImage(img, x, y, imgSize, imgSize)
+      ctx.beginPath()
+      ctx.roundRect(
+        imageX - borderWidth,
+        imageY - borderWidth,
+        imageSize + borderWidth * 2,
+        imageSize + borderWidth * 2,
+        25 * scale,
+      )
+      ctx.fill()
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageSize, imageSize, 20 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageSize, imageSize, bannerData.imageFilters.productImage)
+      ctx.restore()
     }
 
     // Bold text
     ctx.fillStyle = "#ffffff"
-    ctx.font = `bold ${bannerData.textStyles.shopNameSize}px ${bannerData.textStyles.shopNameFont}`
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize * scale}px ${bannerData.textStyles.shopNameFont}`
     ctx.textAlign = "center"
 
     if (bannerData.shopName) {
+      // Add text shadow for better readability
+      ctx.shadowColor = "rgba(0, 0, 0, 0.3)"
+      ctx.shadowBlur = 5 * scale
+      ctx.shadowOffsetY = 2 * scale
       ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
+      ctx.shadowColor = "transparent"
+    }
+
+    if (bannerData.productName) {
+      ctx.fillStyle = "#fef3c7"
+      ctx.font = `${bannerData.textStyles.productNameSize * scale}px ${bannerData.textStyles.productNameFont}`
+      ctx.fillText(bannerData.productName, width / 2, height * 0.85)
     }
   }
 
-  const renderElegantCursive = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Elegant design with cursive elements
+  const renderElegantCursive = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
+    // Elegant gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, height)
     gradient.addColorStop(0, "#fdfbfb")
     gradient.addColorStop(1, "#ebedee")
@@ -413,82 +781,103 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
     // Product image with elegant frame
     if (bannerData.productImage && loadedImages[bannerData.productImage]) {
       const img = loadedImages[bannerData.productImage]
-      const imgSize = Math.min(width, height) * 0.5
-      const x = (width - imgSize) / 2
-      const y = height * 0.15
+      const imageSize = Math.min(width, height) * 0.5
+      const imageX = (width - imageSize) / 2
+      const imageY = height * 0.2
+      const frameWidth = 15 * scale
 
       // Elegant frame
       ctx.strokeStyle = "#d1d5db"
-      ctx.lineWidth = 3
-      ctx.strokeRect(x - 15, y - 15, imgSize + 30, imgSize + 30)
-      ctx.drawImage(img, x, y, imgSize, imgSize)
+      ctx.lineWidth = 3 * scale
+      ctx.beginPath()
+      ctx.roundRect(
+        imageX - frameWidth,
+        imageY - frameWidth,
+        imageSize + frameWidth * 2,
+        imageSize + frameWidth * 2,
+        10 * scale,
+      )
+      ctx.stroke()
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageSize, imageSize, 5 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageSize, imageSize, bannerData.imageFilters.productImage)
+      ctx.restore()
     }
 
     // Elegant typography
     ctx.fillStyle = "#1f2937"
-    ctx.font = `italic ${bannerData.textStyles.shopNameSize}px serif`
+    ctx.font = `${bannerData.textStyles.shopNameSize * scale}px ${bannerData.textStyles.shopNameFont}`
     ctx.textAlign = "center"
 
     if (bannerData.shopName) {
       ctx.fillText(bannerData.shopName, width / 2, height * 0.8)
     }
+
+    if (bannerData.productName) {
+      ctx.font = `italic ${bannerData.textStyles.productNameSize * scale}px Dancing Script, cursive`
+      ctx.fillStyle = "#374151"
+      ctx.fillText(bannerData.productName, width / 2, height * 0.85)
+    }
   }
 
-  const renderInspirationalVibes = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Inspirational design
-    const gradient = ctx.createLinearGradient(0, 0, width, height)
-    gradient.addColorStop(0, "#4a90a4")
-    gradient.addColorStop(0.5, "#5ba3b8")
-    gradient.addColorStop(1, "#6bb6cc")
+  const renderMaritimeAdventure = async (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    scale: number,
+  ) => {
+    // Ocean gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, height)
+    gradient.addColorStop(0, "#4A90A4")
+    gradient.addColorStop(1, "#2C5F6F")
     ctx.fillStyle = gradient
     ctx.fillRect(0, 0, width, height)
 
-    // Main inspirational image
-    if (bannerData.inspirationalImage1 && loadedImages[bannerData.inspirationalImage1]) {
-      const img = loadedImages[bannerData.inspirationalImage1]
-      ctx.drawImage(img, width * 0.1, height * 0.1, width * 0.8, height * 0.5)
+    // Maritime elements and images
+    if (bannerData.horizontalImage && loadedImages[bannerData.horizontalImage]) {
+      const img = loadedImages[bannerData.horizontalImage]
+      const imageWidth = width * 0.8
+      const imageHeight = height * 0.4
+      const imageX = (width - imageWidth) / 2
+      const imageY = height * 0.1
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageWidth, imageHeight, 20 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageWidth, imageHeight, bannerData.imageFilters.horizontalImage)
+      ctx.restore()
     }
 
-    // Inspirational text
+    // Maritime text styling
     ctx.fillStyle = "#ffffff"
-    ctx.font = `italic ${bannerData.textStyles.inspirationalTextSize + 10}px serif`
+    ctx.font = `bold ${bannerData.textStyles.shopNameSize * scale}px ${bannerData.textStyles.shopNameFont}`
     ctx.textAlign = "center"
 
-    if (bannerData.inspirationalText) {
-      const words = bannerData.inspirationalText.split(" ")
-      let line = ""
-      let y = height * 0.7
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + " "
-        const metrics = ctx.measureText(testLine)
-        const testWidth = metrics.width
-
-        if (testWidth > width * 0.8 && n > 0) {
-          ctx.fillText(line, width / 2, y)
-          line = words[n] + " "
-          y += bannerData.textStyles.inspirationalTextSize + 15
-        } else {
-          line = testLine
-        }
-      }
-      ctx.fillText(line, width / 2, y)
+    if (bannerData.shopName) {
+      ctx.shadowColor = "rgba(0, 0, 0, 0.5)"
+      ctx.shadowBlur = 8 * scale
+      ctx.shadowOffsetY = 3 * scale
+      ctx.fillText(bannerData.shopName, width / 2, height * 0.7)
+      ctx.shadowColor = "transparent"
     }
 
-    // Author name
-    if (bannerData.authorName) {
-      ctx.font = `${bannerData.textStyles.authorNameSize}px ${bannerData.textStyles.authorNameFont}`
-      ctx.fillText(`- ${bannerData.authorName}`, width / 2, height * 0.85)
+    if (bannerData.productName) {
+      ctx.font = `${bannerData.textStyles.productNameSize * scale}px ${bannerData.textStyles.productNameFont}`
+      ctx.fillText(bannerData.productName, width / 2, height * 0.8)
     }
   }
 
-  const renderDefaultTheme = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const renderDefaultTheme = async (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number) => {
     // Simple default rendering
     ctx.fillStyle = "#f0f0f0"
     ctx.fillRect(0, 0, width, height)
 
     ctx.fillStyle = "#333333"
-    ctx.font = "48px Inter"
+    ctx.font = `${48 * scale}px Inter`
     ctx.textAlign = "center"
     ctx.fillText("Social Banner", width / 2, height / 2)
   }
@@ -504,7 +893,7 @@ export function BannerProvider({ children }: { children: React.ReactNode }) {
       case "jpg":
       case "jpeg":
         mimeType = "image/jpeg"
-        quality = 0.95
+        quality = 0.98 // Very high quality for mobile
         break
       case "webp":
         mimeType = "image/webp"

@@ -2,167 +2,139 @@
 
 import type React from "react"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, X } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Upload, X, ImageIcon } from "lucide-react"
 
 interface DragDropZoneProps {
+  label: string
+  currentImage: string | null
   onFileUpload: (file: File | null) => void
-  currentImage?: string | null
-  label?: string
   compact?: boolean
+  aspectRatio?: "square" | "portrait" | "landscape"
 }
 
 export function DragDropZone({
-  onFileUpload,
+  label,
   currentImage,
-  label = "Upload Image",
+  onFileUpload,
   compact = false,
+  aspectRatio = "square",
 }: DragDropZoneProps) {
-  const [isDragOver, setIsDragOver] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragOver(true)
-  }, [])
+    setIsDragging(true)
+  }
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragOver(false)
-  }, [])
+    setIsDragging(false)
+  }
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragOver(false)
+    setIsDragging(false)
 
-    const files = Array.from(e.dataTransfer.files)
-    const imageFile = files.find((file) => file.type.startsWith("image/"))
-
-    if (imageFile) {
-      handleFileUpload(imageFile)
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      const file = files[0]
+      if (file.type.startsWith("image/")) {
+        onFileUpload(file)
+      }
     }
-  }, [])
+  }
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      handleFileUpload(file)
+      onFileUpload(file)
     }
-  }, [])
+  }
 
-  const handleFileUpload = useCallback(
-    (file: File) => {
-      setIsLoading(true)
-      // Simulate processing time
-      setTimeout(() => {
-        onFileUpload(file)
-        setIsLoading(false)
-      }, 300)
-    },
-    [onFileUpload],
-  )
-
-  const handleRemoveImage = useCallback(() => {
+  const handleRemoveImage = () => {
     onFileUpload(null)
-  }, [onFileUpload])
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
 
-  const openFileDialog = useCallback(() => {
-    fileInputRef.current?.click()
-  }, [])
-
-  const height = compact ? "h-24" : "h-32"
-
-  if (currentImage) {
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">{label}</span>
-        </div>
-        <div className="relative group">
-          <img
-            src={currentImage || "/placeholder.svg"}
-            alt="Uploaded"
-            className={`w-full ${height} object-cover rounded-lg border border-gray-200`}
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
-              <Button size="sm" variant="secondary" onClick={openFileDialog} className="h-8 px-3">
-                <Upload className="w-3 h-3 mr-1" />
-                Replace
-              </Button>
-              <Button size="sm" variant="destructive" onClick={handleRemoveImage} className="h-8 px-3">
-                <X className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-          aria-label={`Replace ${label}`}
-        />
-      </div>
-    )
+  const getAspectRatioClass = () => {
+    switch (aspectRatio) {
+      case "portrait":
+        return "aspect-[9/16]" // Instagram Story ratio
+      case "landscape":
+        return "aspect-[16/9]"
+      case "square":
+      default:
+        return "aspect-square"
+    }
   }
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-      </div>
-      <div
-        className={`
-          ${height} border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-          ${
-            isDragOver
-              ? "border-blue-400 bg-blue-50"
-              : isLoading
-                ? "border-gray-300 bg-gray-50"
-                : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
-          }
-        `}
+      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <Card
+        className={`border-2 border-dashed transition-all duration-200 ${
+          isDragging
+            ? "border-blue-400 bg-blue-50"
+            : currentImage
+              ? "border-green-300 bg-green-50"
+              : "border-gray-300 hover:border-gray-400"
+        } ${compact ? "p-2" : "p-4"}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={openFileDialog}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            openFileDialog()
-          }
-        }}
-        aria-label={`Upload ${label}`}
       >
-        <div className="flex flex-col items-center justify-center h-full text-gray-500">
-          {isLoading ? (
-            <>
-              <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-2" />
-              <span className="text-xs">Processing...</span>
-            </>
+        <CardContent className="p-0">
+          {currentImage ? (
+            <div className="relative group">
+              <div className={`${getAspectRatioClass()} w-full overflow-hidden rounded-lg bg-gray-100`}>
+                <img
+                  src={currentImage || "/placeholder.svg"}
+                  alt={label}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                />
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleRemoveImage}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+            </div>
           ) : (
-            <>
-              <Upload className={`${compact ? "w-5 h-5" : "w-6 h-6"} mb-2`} />
-              <span className={`${compact ? "text-xs" : "text-sm"} text-center px-2`}>
-                {isDragOver ? "Drop image here" : "Click or drag image"}
-              </span>
-            </>
+            <div
+              className={`${getAspectRatioClass()} w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors rounded-lg`}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="text-center space-y-2">
+                <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  {isDragging ? (
+                    <Upload className="w-6 h-6 text-blue-500" />
+                  ) : (
+                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className={`font-medium text-gray-700 ${compact ? "text-xs" : "text-sm"}`}>
+                    {isDragging ? "Drop image here" : "Upload Image"}
+                  </p>
+                  {!compact && <p className="text-xs text-gray-500">Drag & drop or click to browse</p>}
+                </div>
+              </div>
+            </div>
           )}
-        </div>
-      </div>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileSelect}
-        className="hidden"
-        aria-label={`Upload ${label}`}
-      />
+
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+        </CardContent>
+      </Card>
     </div>
   )
 }

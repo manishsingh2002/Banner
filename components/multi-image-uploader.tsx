@@ -1,184 +1,128 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef, useCallback } from "react"
+import { useState } from "react"
+import { DragDropZone } from "./drag-drop-zone"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { X, Plus } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Images, Instagram, Smartphone } from "lucide-react"
 
 interface MultiImageUploaderProps {
-  onFilesUpload: (files: File[]) => void
-  currentImages: (string | null)[]
-  labels: string[]
-  maxImages?: number
+  onImagesChange: (images: { [key: string]: string | null }) => void
+  currentImages: { [key: string]: string | null }
 }
 
-export function MultiImageUploader({ onFilesUpload, currentImages, labels, maxImages = 3 }: MultiImageUploaderProps) {
-  const [isDragOver, setIsDragOver] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function MultiImageUploader({ onImagesChange, currentImages }: MultiImageUploaderProps) {
+  const [activePreset, setActivePreset] = useState<string>("instagram_post")
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(true)
-  }, [])
+  const presets = {
+    instagram_post: {
+      name: "Instagram Post",
+      icon: Instagram,
+      description: "Perfect square format for Instagram feed",
+      images: [{ key: "main", label: "Main Image", aspectRatio: "square" as const }],
+    },
+    instagram_story: {
+      name: "Instagram Story",
+      icon: Smartphone,
+      description: "Vertical format optimized for Stories",
+      images: [{ key: "story", label: "Story Image", aspectRatio: "portrait" as const }],
+    },
+    gallery_layout: {
+      name: "Gallery Layout",
+      icon: Images,
+      description: "Multiple images for rich content",
+      images: [
+        { key: "horizontal", label: "Main Horizontal", aspectRatio: "landscape" as const },
+        { key: "vertical1", label: "Vertical 1", aspectRatio: "portrait" as const },
+        { key: "vertical2", label: "Vertical 2", aspectRatio: "portrait" as const },
+        { key: "vertical3", label: "Vertical 3", aspectRatio: "portrait" as const },
+      ],
+    },
+  }
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-  }, [])
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      setIsDragOver(false)
-
-      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
-      if (files.length > 0) {
-        handleFilesUpload(files.slice(0, maxImages))
+  const handleFileUpload = (key: string, file: File | null) => {
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        onImagesChange({
+          ...currentImages,
+          [key]: result,
+        })
       }
-    },
-    [maxImages],
-  )
+      reader.readAsDataURL(file)
+    } else {
+      onImagesChange({
+        ...currentImages,
+        [key]: null,
+      })
+    }
+  }
 
-  const handleFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []).filter((file) => file.type.startsWith("image/"))
-      if (files.length > 0) {
-        handleFilesUpload(files.slice(0, maxImages))
-      }
-    },
-    [maxImages],
-  )
-
-  const handleFilesUpload = useCallback(
-    (files: File[]) => {
-      setIsLoading(true)
-      setTimeout(() => {
-        onFilesUpload(files)
-        setIsLoading(false)
-      }, 500)
-    },
-    [onFilesUpload],
-  )
-
-  const handleSingleImageRemove = useCallback(
-    (index: number) => {
-      // Create a new array with the image at index removed
-      const newFiles: File[] = []
-      onFilesUpload(newFiles)
-    },
-    [onFilesUpload],
-  )
-
-  const openFileDialog = useCallback(() => {
-    fileInputRef.current?.click()
-  }, [])
-
-  const hasImages = currentImages.some((img) => img !== null)
+  const currentPreset = presets[activePreset as keyof typeof presets]
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Vertical Images</span>
-        <span className="text-xs text-gray-500">
-          {currentImages.filter(Boolean).length}/{maxImages}
-        </span>
-      </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Images className="w-5 h-5" />
+          Image Upload
+        </CardTitle>
 
-      {hasImages ? (
-        <div className="grid grid-cols-3 gap-2">
-          {currentImages.map((image, index) => (
-            <div key={index} className="relative group">
-              {image ? (
-                <>
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={labels[index]}
-                    className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleSingleImageRemove(index)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-6 w-6 p-0"
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  <span className="absolute bottom-1 left-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
-                    {labels[index]}
-                  </span>
-                </>
-              ) : (
-                <div className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                  <span className="text-xs text-gray-400">{labels[index]}</span>
-                </div>
-              )}
-            </div>
-          ))}
+        {/* Preset Selection */}
+        <div className="flex gap-2 flex-wrap">
+          {Object.entries(presets).map(([key, preset]) => {
+            const Icon = preset.icon
+            return (
+              <Button
+                key={key}
+                variant={activePreset === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActivePreset(key)}
+                className="flex items-center gap-2"
+              >
+                <Icon className="w-4 h-4" />
+                {preset.name}
+              </Button>
+            )
+          })}
         </div>
-      ) : (
-        <div
-          className={`
-            h-32 border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-            ${
-              isDragOver
-                ? "border-blue-400 bg-blue-50"
-                : isLoading
-                  ? "border-gray-300 bg-gray-50"
-                  : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
-            }
-          `}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={openFileDialog}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              openFileDialog()
-            }
-          }}
-          aria-label="Upload multiple images"
-        >
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            {isLoading ? (
-              <>
-                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-2" />
-                <span className="text-xs">Processing...</span>
-              </>
-            ) : (
-              <>
-                <Plus className="w-6 h-6 mb-2" />
-                <span className="text-sm text-center px-2">
-                  {isDragOver ? "Drop images here" : `Upload up to ${maxImages} images`}
-                </span>
-                <span className="text-xs text-gray-400 mt-1">Click or drag multiple images</span>
-              </>
-            )}
+
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs">
+            {currentPreset.description}
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {activePreset === "gallery_layout" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {currentPreset.images.map((imageConfig) => (
+              <DragDropZone
+                key={imageConfig.key}
+                label={imageConfig.label}
+                currentImage={currentImages[imageConfig.key]}
+                onFileUpload={(file) => handleFileUpload(imageConfig.key, file)}
+                aspectRatio={imageConfig.aspectRatio}
+              />
+            ))}
           </div>
-        </div>
-      )}
-
-      {hasImages && (
-        <Button variant="outline" size="sm" onClick={openFileDialog} className="w-full bg-transparent">
-          <Plus className="w-4 h-4 mr-2" />
-          Add More Images
-        </Button>
-      )}
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFileSelect}
-        className="hidden"
-        aria-label="Upload multiple images"
-      />
-    </div>
+        ) : (
+          <div className="max-w-md mx-auto">
+            {currentPreset.images.map((imageConfig) => (
+              <DragDropZone
+                key={imageConfig.key}
+                label={imageConfig.label}
+                currentImage={currentImages[imageConfig.key]}
+                onFileUpload={(file) => handleFileUpload(imageConfig.key, file)}
+                aspectRatio={imageConfig.aspectRatio}
+              />
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
