@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { DragDropZone } from "@/components/drag-drop-zone"
 
 import type React from "react"
 
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Upload, ImageIcon, Palette, Sliders } from "lucide-react"
+import { Download, ImageIcon, Palette, Sliders } from "lucide-react"
 import { Edit, Layers, Type, TrendingUp, Anchor, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useBanner } from "@/contexts/banner-context"
@@ -137,29 +138,6 @@ const fontOptions = {
   Nunito: "Nunito, sans-serif",
 }
 
-const textureTypes = {
-  none: "No Texture",
-  paper: "Paper",
-  canvas: "Canvas",
-  fabric: "Fabric",
-  linen: "Linen",
-  watercolor: "Watercolor Paper",
-  parchment: "Parchment",
-  cardboard: "Cardboard",
-  leather: "Leather",
-  wood: "Wood Grain",
-}
-
-const blendModes = {
-  overlay: "Overlay",
-  multiply: "Multiply",
-  screen: "Screen",
-  softLight: "Soft Light",
-  hardLight: "Hard Light",
-  colorBurn: "Color Burn",
-  colorDodge: "Color Dodge",
-}
-
 const filterPresets = {
   none: {
     brightness: 100,
@@ -234,201 +212,6 @@ const filterPresets = {
     filmGrain: 0,
     textureType: "none",
     textureIntensity: 0,
-    textureBlendMode: "overlay",
-  },
-  soft: {
-    brightness: 115,
-    contrast: 85,
-    saturation: 90,
-    blur: 1,
-    sepia: 10,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 0,
-    vignette: 10,
-    filmGrain: 5,
-    textureType: "fabric",
-    textureIntensity: 15,
-    textureBlendMode: "softLight",
-  },
-  cool: {
-    brightness: 105,
-    contrast: 110,
-    saturation: 110,
-    blur: 0,
-    sepia: 0,
-    grayscale: 0,
-    hueRotate: 200,
-    hdr: 15,
-    vignette: 0,
-    filmGrain: 0,
-    textureType: "none",
-    textureIntensity: 0,
-    textureBlendMode: "overlay",
-  },
-  warm: {
-    brightness: 110,
-    contrast: 105,
-    saturation: 115,
-    blur: 0,
-    sepia: 20,
-    grayscale: 0,
-    hueRotate: 30,
-    hdr: 10,
-    vignette: 15,
-    filmGrain: 8,
-    textureType: "canvas",
-    textureIntensity: 20,
-    textureBlendMode: "overlay",
-  },
-  neon: {
-    brightness: 120,
-    contrast: 140,
-    saturation: 150,
-    blur: 0,
-    sepia: 0,
-    grayscale: 0,
-    hueRotate: 280,
-    hdr: 25,
-    vignette: 0,
-    filmGrain: 0,
-    textureType: "none",
-    textureIntensity: 0,
-    textureBlendMode: "overlay",
-  },
-  dreamy: {
-    brightness: 120,
-    contrast: 80,
-    saturation: 110,
-    blur: 2,
-    sepia: 15,
-    grayscale: 0,
-    hueRotate: 320,
-    hdr: 0,
-    vignette: 20,
-    filmGrain: 12,
-    textureType: "watercolor",
-    textureIntensity: 25,
-    textureBlendMode: "softLight",
-  },
-  hdr: {
-    brightness: 110,
-    contrast: 130,
-    saturation: 125,
-    blur: 0,
-    sepia: 0,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 50,
-    vignette: 10,
-    filmGrain: 0,
-    textureType: "none",
-    textureIntensity: 0,
-    textureBlendMode: "overlay",
-  },
-  cinematic: {
-    brightness: 95,
-    contrast: 125,
-    saturation: 110,
-    blur: 0,
-    sepia: 5,
-    grayscale: 0,
-    hueRotate: 15,
-    hdr: 20,
-    vignette: 40,
-    filmGrain: 20,
-    textureType: "none",
-    textureIntensity: 0,
-    textureBlendMode: "overlay",
-  },
-  film: {
-    brightness: 105,
-    contrast: 115,
-    saturation: 95,
-    blur: 0,
-    sepia: 25,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 0,
-    vignette: 30,
-    filmGrain: 35,
-    textureType: "paper",
-    textureIntensity: 20,
-    textureBlendMode: "multiply",
-  },
-  portrait: {
-    brightness: 108,
-    contrast: 110,
-    saturation: 105,
-    blur: 0,
-    sepia: 0,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 15,
-    vignette: 25,
-    filmGrain: 5,
-    textureType: "fabric",
-    textureIntensity: 10,
-    textureBlendMode: "softLight",
-  },
-  landscape: {
-    brightness: 105,
-    contrast: 120,
-    saturation: 115,
-    blur: 0,
-    sepia: 0,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 35,
-    vignette: 15,
-    filmGrain: 0,
-    textureType: "canvas",
-    textureIntensity: 15,
-    textureBlendMode: "overlay",
-  },
-  artistic: {
-    brightness: 110,
-    contrast: 115,
-    saturation: 105,
-    blur: 0,
-    sepia: 10,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 10,
-    vignette: 20,
-    filmGrain: 15,
-    textureType: "canvas",
-    textureIntensity: 40,
-    textureBlendMode: "overlay",
-  },
-  vintage_paper: {
-    brightness: 115,
-    contrast: 110,
-    saturation: 85,
-    blur: 0,
-    sepia: 40,
-    grayscale: 0,
-    hueRotate: 15,
-    hdr: 0,
-    vignette: 30,
-    filmGrain: 25,
-    textureType: "parchment",
-    textureIntensity: 50,
-    textureBlendMode: "multiply",
-  },
-  fabric_art: {
-    brightness: 105,
-    contrast: 105,
-    saturation: 95,
-    blur: 0,
-    sepia: 5,
-    grayscale: 0,
-    hueRotate: 0,
-    hdr: 0,
-    vignette: 15,
-    filmGrain: 10,
-    textureType: "linen",
-    textureIntensity: 35,
     textureBlendMode: "overlay",
   },
 }
@@ -619,20 +402,13 @@ export default function SocialBannerCreator() {
   })
 
   const [selectedImageForFilter, setSelectedImageForFilter] = useState<string>("productImage")
-  const [templates, setTemplates] = useState([])
   const [isExporting, setIsExporting] = useState(false)
   const [exportFormats, setExportFormats] = useState(["png"])
   const [brandColors, setBrandColors] = useState(["#059669", "#84cc16", "#3b82f6"])
-  const [autoColorExtraction, setAutoColorExtraction] = useState(true)
   const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({})
 
   const [isGenerating, setIsGenerating] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const horizontalImageRef = useRef<HTMLInputElement>(null)
-  const verticalImageRefs = useRef<(HTMLInputElement | null)[]>([])
-  const inspirationalImage1Ref = useRef<HTMLInputElement>(null)
-  const inspirationalImage2Ref = useRef<HTMLInputElement>(null)
 
   // Image loading utility with proper error handling
   const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -653,10 +429,6 @@ export default function SocialBannerCreator() {
 
       img.onerror = (error) => {
         console.error(`Failed to load image: ${src}`, error)
-        // Create a fallback placeholder
-        const fallbackImg = new Image()
-        fallbackImg.width = 400
-        fallbackImg.height = 400
         reject(new Error(`Failed to load image: ${src}`))
       }
 
@@ -823,169 +595,6 @@ export default function SocialBannerCreator() {
     }))
   }
 
-  const createTexture = (
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    textureType: string,
-  ): HTMLCanvasElement => {
-    const textureCanvas = document.createElement("canvas")
-    const textureCtx = textureCanvas.getContext("2d")!
-    textureCanvas.width = width
-    textureCanvas.height = height
-
-    switch (textureType) {
-      case "paper":
-        // Create paper texture with subtle noise
-        const paperImageData = textureCtx.createImageData(width, height)
-        for (let i = 0; i < paperImageData.data.length; i += 4) {
-          const noise = Math.random() * 40 - 20
-          const baseColor = 240 + noise
-          paperImageData.data[i] = baseColor // Red
-          paperImageData.data[i + 1] = baseColor - 5 // Green
-          paperImageData.data[i + 2] = baseColor - 10 // Blue
-          paperImageData.data[i + 3] = 255 // Alpha
-        }
-        textureCtx.putImageData(paperImageData, 0, 0)
-        break
-
-      case "canvas":
-        // Create canvas texture with crosshatch pattern
-        textureCtx.fillStyle = "#f5f5f0"
-        textureCtx.fillRect(0, 0, width, height)
-        textureCtx.strokeStyle = "rgba(200, 200, 190, 0.3)"
-        textureCtx.lineWidth = 0.5
-
-        for (let x = 0; x < width; x += 3) {
-          textureCtx.beginPath()
-          textureCtx.moveTo(x, 0)
-          textureCtx.lineTo(x, height)
-          textureCtx.stroke()
-        }
-        for (let y = 0; y < height; y += 3) {
-          textureCtx.beginPath()
-          textureCtx.moveTo(0, y)
-          textureCtx.lineTo(width, y)
-          textureCtx.stroke()
-        }
-        break
-
-      case "fabric":
-        // Create fabric texture with woven pattern
-        textureCtx.fillStyle = "#f8f8f6"
-        textureCtx.fillRect(0, 0, width, height)
-        textureCtx.fillStyle = "rgba(220, 220, 210, 0.4)"
-
-        for (let x = 0; x < width; x += 4) {
-          for (let y = 0; y < height; y += 4) {
-            if ((x + y) % 8 === 0) {
-              textureCtx.fillRect(x, y, 2, 2)
-            }
-          }
-        }
-        break
-
-      case "linen":
-        // Create linen texture with irregular weave
-        textureCtx.fillStyle = "#faf9f7"
-        textureCtx.fillRect(0, 0, width, height)
-        textureCtx.fillStyle = "rgba(210, 205, 195, 0.3)"
-
-        for (let x = 0; x < width; x += 2) {
-          for (let y = 0; y < height; y += 2) {
-            if (Math.random() > 0.7) {
-              textureCtx.fillRect(x, y, 1, 1)
-            }
-          }
-        }
-        break
-
-      case "watercolor":
-        // Create watercolor paper texture
-        const watercolorImageData = textureCtx.createImageData(width, height)
-        for (let i = 0; i < watercolorImageData.data.length; i += 4) {
-          const noise = Math.random() * 30 - 15
-          const baseColor = 250 + noise
-          watercolorImageData.data[i] = baseColor // Red
-          watercolorImageData.data[i + 1] = baseColor // Green
-          watercolorImageData.data[i + 2] = baseColor + 5 // Blue
-          watercolorImageData.data[i + 3] = 255 // Alpha
-        }
-        textureCtx.putImageData(watercolorImageData, 0, 0)
-        break
-
-      case "parchment":
-        // Create aged parchment texture
-        textureCtx.fillStyle = "#f4f1e8"
-        textureCtx.fillRect(0, 0, width, height)
-        const parchmentImageData = textureCtx.createImageData(width, height)
-        for (let i = 0; i < parchmentImageData.data.length; i += 4) {
-          const noise = Math.random() * 25 - 12
-          parchmentImageData.data[i] = 244 + noise // Red
-          parchmentImageData.data[i + 1] = 241 + noise - 5 // Green
-          parchmentImageData.data[i + 2] = 232 + noise - 10 // Blue
-          parchmentImageData.data[i + 3] = 255 // Alpha
-        }
-        textureCtx.putImageData(parchmentImageData, 0, 0)
-        break
-
-      case "cardboard":
-        // Create cardboard texture
-        textureCtx.fillStyle = "#d4c4a8"
-        textureCtx.fillRect(0, 0, width, height)
-        textureCtx.strokeStyle = "rgba(180, 160, 130, 0.4)"
-        textureCtx.lineWidth = 1
-
-        for (let y = 0; y < height; y += 8) {
-          textureCtx.beginPath()
-          textureCtx.moveTo(0, y)
-          textureCtx.lineTo(width, y)
-          textureCtx.stroke()
-        }
-        break
-
-      case "leather":
-        // Create leather texture
-        textureCtx.fillStyle = "#8b4513"
-        textureCtx.fillRect(0, 0, width, height)
-        for (let i = 0; i < 200; i++) {
-          const x = Math.random() * width
-          const y = Math.random() * height
-          const size = Math.random() * 3 + 1
-          textureCtx.fillStyle = `rgba(${139 + Math.random() * 40}, ${69 + Math.random() * 30}, ${19 + Math.random() * 20}, 0.3)`
-          textureCtx.beginPath()
-          textureCtx.arc(x, y, size, 0, Math.PI * 2)
-          textureCtx.fill()
-        }
-        break
-
-      case "wood":
-        // Create wood grain texture
-        textureCtx.fillStyle = "#deb887"
-        textureCtx.fillRect(0, 0, width, height)
-        textureCtx.strokeStyle = "rgba(160, 120, 80, 0.3)"
-        textureCtx.lineWidth = 2
-
-        for (let y = 0; y < height; y += 12) {
-          textureCtx.beginPath()
-          textureCtx.moveTo(0, y + Math.sin(y * 0.1) * 3)
-          for (let x = 0; x < width; x += 10) {
-            textureCtx.lineTo(x, y + Math.sin((x + y) * 0.05) * 3)
-          }
-          textureCtx.stroke()
-        }
-        break
-
-      default:
-        // No texture
-        textureCtx.fillStyle = "transparent"
-        textureCtx.fillRect(0, 0, width, height)
-        break
-    }
-
-    return textureCanvas
-  }
-
   const getFilterString = (filters: ImageFilters): string => {
     let filterString = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px) sepia(${filters.sepia}%) grayscale(${filters.grayscale}%) hue-rotate(${filters.hueRotate}deg)`
 
@@ -998,128 +607,6 @@ export default function SocialBannerCreator() {
     return filterString
   }
 
-  const applyImageFilter = (
-    ctx: CanvasRenderingContext2D,
-    filters: ImageFilters,
-    canvas?: HTMLCanvasElement,
-    x?: number,
-    y?: number,
-    width?: number,
-    height?: number,
-  ) => {
-    // Apply basic CSS filters
-    ctx.filter = getFilterString(filters)
-
-    // For advanced effects, we'll apply them after drawing the image
-    return {
-      needsAdvancedFilters: filters.vignette > 0 || filters.filmGrain > 0 || filters.textureType !== "none",
-      filters,
-    }
-  }
-
-  const applyAdvancedFilters = (
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement,
-    filters: ImageFilters,
-    x = 0,
-    y = 0,
-    width: number = canvas.width,
-    height: number = canvas.height,
-  ) => {
-    // Apply texture overlay
-    if (filters.textureType !== "none" && filters.textureIntensity > 0) {
-      const textureCanvas = createTexture(ctx, width, height, filters.textureType)
-      ctx.save()
-      ctx.globalAlpha = filters.textureIntensity / 100
-      ctx.globalCompositeOperation = filters.textureBlendMode as GlobalCompositeOperation
-      ctx.drawImage(textureCanvas, x, y, width, height)
-      ctx.restore()
-    }
-
-    // Apply vignette effect
-    if (filters.vignette > 0) {
-      const centerX = x + width / 2
-      const centerY = y + height / 2
-      const maxDistance = Math.sqrt((width / 2) * (width / 2) + (height / 2) * (height / 2))
-
-      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxDistance)
-      gradient.addColorStop(0, `rgba(0, 0, 0, 0)`)
-      gradient.addColorStop(0.6, `rgba(0, 0, 0, 0)`)
-      gradient.addColorStop(1, `rgba(0, 0, 0, ${filters.vignette / 100})`)
-
-      ctx.save()
-      ctx.fillStyle = gradient
-      ctx.fillRect(x, y, width, height)
-      ctx.restore()
-    }
-
-    // Apply film grain effect
-    if (filters.filmGrain > 0) {
-      const imageData = ctx.getImageData(x, y, width, height)
-      const data = imageData.data
-      const intensity = filters.filmGrain / 100
-
-      for (let i = 0; i < data.length; i += 4) {
-        const noise = (Math.random() - 0.5) * intensity * 255
-        data[i] = Math.max(0, Math.min(255, data[i] + noise)) // Red
-        data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)) // Green
-        data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)) // Blue
-      }
-
-      ctx.putImageData(imageData, x, y)
-    }
-  }
-
-  // AI-powered color extraction from uploaded images
-  const extractColorsFromImage = async (imageUrl: string) => {
-    // This would integrate with a color extraction API
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-    const img = new Image()
-
-    return new Promise((resolve) => {
-      img.onload = () => {
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx?.drawImage(img, 0, 0)
-
-        // Extract dominant colors (simplified version)
-        const colors = ["#059669", "#84cc16", "#3b82f6", "#f59e0b", "#ef4444"]
-        resolve(colors)
-      }
-      img.src = imageUrl
-    })
-  }
-
-  // Batch export functionality
-  const exportMultipleFormats = async () => {
-    setIsExporting(true)
-    const formats = ["png", "jpg", "webp"]
-
-    for (const format of formats) {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      downloadBanner(format)
-    }
-
-    setIsExporting(false)
-  }
-
-  // Smart text suggestions based on product category
-  const generateSmartSuggestions = (productName: string) => {
-    const suggestions = {
-      fashion: ["Trendy", "Stylish", "Premium Quality", "Limited Edition"],
-      food: ["Fresh", "Delicious", "Organic", "Handcrafted"],
-      tech: ["Innovative", "Smart", "Advanced", "Next-Gen"],
-      default: ["Quality", "Premium", "Exclusive", "Special Offer"],
-    }
-
-    // Simple keyword matching (in real app, use AI/ML)
-    if (productName.toLowerCase().includes("shirt") || productName.toLowerCase().includes("dress")) {
-      return suggestions.fashion
-    }
-    return suggestions.default
-  }
-
   // Enhanced image drawing function with proper error handling
   const drawImageWithFilters = async (
     ctx: CanvasRenderingContext2D,
@@ -1129,7 +616,6 @@ export default function SocialBannerCreator() {
     y: number,
     width: number,
     height: number,
-    canvas: HTMLCanvasElement,
   ) => {
     try {
       const img = await loadImage(imageSrc)
@@ -1137,18 +623,10 @@ export default function SocialBannerCreator() {
       ctx.save()
 
       // Apply basic filters
-      const filterResult = applyImageFilter(ctx, filters)
+      ctx.filter = getFilterString(filters)
 
       // Draw the image
       ctx.drawImage(img, x, y, width, height)
-
-      // Reset filter for advanced effects
-      ctx.filter = "none"
-
-      // Apply advanced filters if needed
-      if (filterResult.needsAdvancedFilters) {
-        applyAdvancedFilters(ctx, canvas, filterResult.filters, x, y, width, height)
-      }
 
       ctx.restore()
     } catch (error) {
@@ -1174,9 +652,9 @@ export default function SocialBannerCreator() {
     if (!ctx) return
 
     try {
-      // Set canvas dimensions based on resolution
+      // Set canvas dimensions based on resolution with proper aspect ratio
       const dimensions =
-        bannerDataLocal.resolution === "4k" ? { width: 2160, height: 3840 } : { width: 1080, height: 1920 }
+        bannerDataLocal.resolution === "4k" ? { width: 3840, height: 2160 } : { width: 1920, height: 1080 }
       canvas.width = dimensions.width
       canvas.height = dimensions.height
 
@@ -1215,49 +693,12 @@ export default function SocialBannerCreator() {
           ctx.fillText(bannerDataLocal.authorName, canvas.width - 40 * scale, 60 * scale)
         }
 
-        // Decorative elements (color palette simulation)
-        const paletteY = 120 * scale
-        const paletteX = 40 * scale
-
-        // White rectangle
-        ctx.fillStyle = "#ffffff"
-        ctx.fillRect(paletteX, paletteY, 80 * scale, 30 * scale)
-
-        // Color circles
-        const colors = ["#8bb3c7", "#d4a574", "#c7b299"]
-        colors.forEach((color, index) => {
-          ctx.fillStyle = color
-          ctx.beginPath()
-          ctx.arc(paletteX + 20 * scale + index * 25 * scale, paletteY + 60 * scale, 12 * scale, 0, 2 * Math.PI)
-          ctx.fill()
-        })
-
         // Main title
         if (bannerDataLocal.productName) {
           ctx.fillStyle = "#ffffff"
           ctx.font = `bold ${bannerDataLocal.textStyles.productNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.productNameFont]}`
           ctx.textAlign = "left"
           ctx.fillText(bannerDataLocal.productName, 40 * scale, 280 * scale)
-        }
-
-        // Color and Font labels
-        ctx.fillStyle = "#ffffff"
-        ctx.font = `${24 * scale}px Inter, sans-serif`
-        ctx.textAlign = "left"
-        ctx.fillText("Color", 40 * scale, 200 * scale)
-        ctx.fillText("Font", 40 * scale, 350 * scale)
-        ctx.fillText("Poppins", 40 * scale, 380 * scale)
-
-        // Archive credit
-        if (bannerDataLocal.shopName) {
-          ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
-          ctx.font = `${16 * scale}px Inter, sans-serif`
-          ctx.textAlign = "right"
-          ctx.fillText(
-            `Archived By @${bannerDataLocal.shopName}`,
-            canvas.width - 40 * scale,
-            topSectionHeight - 40 * scale,
-          )
         }
 
         // Bottom white card section
@@ -1269,17 +710,6 @@ export default function SocialBannerCreator() {
         ctx.beginPath()
         ctx.roundRect(cardMargin, cardY, canvas.width - cardMargin * 2, cardHeight, 20 * scale)
         ctx.fill()
-
-        // Self Reminder tag
-        ctx.fillStyle = "#8bb3c7"
-        ctx.beginPath()
-        ctx.roundRect(60 * scale, cardY + 30 * scale, 160 * scale, 40 * scale, 20 * scale)
-        ctx.fill()
-
-        ctx.fillStyle = "#ffffff"
-        ctx.font = `${18 * scale}px Inter, sans-serif`
-        ctx.textAlign = "center"
-        ctx.fillText("Self Reminder", 140 * scale, cardY + 55 * scale)
 
         // Main image with filters
         if (bannerDataLocal.inspirationalImage1) {
@@ -1301,95 +731,42 @@ export default function SocialBannerCreator() {
             imageY,
             imageWidth,
             imageHeight,
-            canvas,
           )
 
           ctx.restore()
         }
 
-        await drawInspirationalText()
-
-        async function drawInspirationalText() {
+        // Inspirational text
+        if (bannerDataLocal.inspirationalText) {
           const textY = cardY + cardHeight * 0.65
-
-          // Page and Today headers
-          ctx.fillStyle = "#374151"
-          ctx.font = `bold ${24 * scale}px Inter, sans-serif`
+          ctx.fillStyle = "#6b7280"
+          ctx.font = `${bannerDataLocal.textStyles.inspirationalTextSize * scale}px ${fontOptions[bannerDataLocal.textStyles.inspirationalTextFont]}`
           ctx.textAlign = "left"
-          ctx.fillText("Page", 60 * scale, textY)
 
-          ctx.textAlign = "right"
-          ctx.fillText("Today", canvas.width - 60 * scale, textY)
+          const maxWidth = canvas.width * 0.5
+          const words = bannerDataLocal.inspirationalText.split(" ")
+          let line = ""
+          let y = textY + 40 * scale
+          const lineHeight = 22 * scale
 
-          // Decorative line
-          ctx.strokeStyle = "#374151"
-          ctx.lineWidth = 3 * scale
-          ctx.beginPath()
-          ctx.moveTo(canvas.width * 0.4, textY + 10 * scale)
-          ctx.lineTo(canvas.width * 0.6, textY + 10 * scale)
-          ctx.stroke()
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " "
+            const metrics = ctx.measureText(testLine)
 
-          // Inspirational text
-          if (bannerDataLocal.inspirationalText) {
-            ctx.fillStyle = "#6b7280"
-            ctx.font = `${bannerDataLocal.textStyles.inspirationalTextSize * scale}px ${fontOptions[bannerDataLocal.textStyles.inspirationalTextFont]}`
-            ctx.textAlign = "left"
-
-            const maxWidth = canvas.width * 0.5
-            const words = bannerDataLocal.inspirationalText.split(" ")
-            let line = ""
-            let y = textY + 40 * scale
-            const lineHeight = 22 * scale
-
-            for (let n = 0; n < words.length; n++) {
-              const testLine = line + words[n] + " "
-              const metrics = ctx.measureText(testLine)
-
-              if (metrics.width > maxWidth && n > 0) {
-                ctx.fillText(line, 60 * scale, y)
-                line = words[n] + " "
-                y += lineHeight
-              } else {
-                line = testLine
-              }
+            if (metrics.width > maxWidth && n > 0) {
+              ctx.fillText(line, 60 * scale, y)
+              line = words[n] + " "
+              y += lineHeight
+            } else {
+              line = testLine
             }
-            ctx.fillText(line, 60 * scale, y)
           }
-
-          // Date section
-          const dateBoxX = canvas.width - 180 * scale
-          const dateBoxY = textY + 30 * scale
-
-          ctx.fillStyle = "#6b7280"
-          ctx.beginPath()
-          ctx.roundRect(dateBoxX, dateBoxY, 120 * scale, 80 * scale, 10 * scale)
-          ctx.fill()
-
-          ctx.fillStyle = "#ffffff"
-          ctx.font = `bold ${36 * scale}px Inter, sans-serif`
-          ctx.textAlign = "center"
-          ctx.fillText("08", dateBoxX + 60 * scale, dateBoxY + 50 * scale)
-
-          ctx.fillStyle = "#6b7280"
-          ctx.beginPath()
-          ctx.roundRect(dateBoxX, dateBoxY + 85 * scale, 120 * scale, 35 * scale, 10 * scale)
-          ctx.fill()
-
-          ctx.fillStyle = "#ffffff"
-          ctx.font = `${bannerDataLocal.textStyles.dateTextSize * scale}px ${fontOptions[bannerDataLocal.textStyles.dateTextFont]}`
-          ctx.fillText(bannerDataLocal.dateText || "January", dateBoxX + 60 * scale, dateBoxY + 105 * scale)
-
-          // Author signature
-          ctx.fillStyle = "#374151"
-          ctx.font = `${14 * scale}px Inter, sans-serif`
-          ctx.textAlign = "left"
-          ctx.fillText("Askar Akmil Design", 60 * scale, cardY + cardHeight - 40 * scale)
-          ctx.fillText("Typography Editor", 60 * scale, cardY + cardHeight - 20 * scale)
+          ctx.fillText(line, 60 * scale, y)
         }
       }
 
       async function drawSocialGallery() {
-        // Use simple gradient background instead of image
+        // Use simple gradient background
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
         gradient.addColorStop(0, "#f8fafc")
         gradient.addColorStop(1, "#e2e8f0")
@@ -1402,7 +779,7 @@ export default function SocialBannerCreator() {
         const frameX = frameMargin
         const frameY = (canvas.height - frameHeight) / 2
 
-        // Draw main container with subtle shadow
+        // Draw main container
         ctx.fillStyle = "#ffffff"
         ctx.shadowColor = "rgba(0, 0, 0, 0.1)"
         ctx.shadowBlur = 20 * scale
@@ -1412,60 +789,24 @@ export default function SocialBannerCreator() {
         ctx.fill()
         ctx.shadowColor = "transparent"
 
-        // PREMIUM HEADER DESIGN
+        // Header
         const headerHeight = 80 * scale
         const headerY = frameY + 20 * scale
 
-        // Header background with gradient
-        const headerGradient = ctx.createLinearGradient(frameX, headerY, frameX + frameWidth, headerY)
-        headerGradient.addColorStop(0, "#1e293b")
-        headerGradient.addColorStop(0.5, "#334155")
-        headerGradient.addColorStop(1, "#1e293b")
-        ctx.fillStyle = headerGradient
+        ctx.fillStyle = "#1e293b"
         ctx.beginPath()
         ctx.roundRect(frameX + 20 * scale, headerY, frameWidth - 40 * scale, headerHeight, 15 * scale)
         ctx.fill()
 
-        // Premium decorative lines
-        ctx.strokeStyle = "#fbbf24"
-        ctx.lineWidth = 3 * scale
-        ctx.beginPath()
-        ctx.moveTo(frameX + 40 * scale, headerY + 20 * scale)
-        ctx.lineTo(frameX + 120 * scale, headerY + 20 * scale)
-        ctx.stroke()
-
-        ctx.beginPath()
-        ctx.moveTo(frameX + frameWidth - 120 * scale, headerY + headerHeight - 20 * scale)
-        ctx.lineTo(frameX + frameWidth - 40 * scale, headerY + headerHeight - 20 * scale)
-        ctx.stroke()
-
-        // Shop name in premium style
+        // Shop name
         if (bannerDataLocal.shopName) {
           ctx.fillStyle = "#ffffff"
           ctx.font = `bold ${bannerDataLocal.textStyles.shopNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.shopNameFont]}`
           ctx.textAlign = "center"
           ctx.fillText(bannerDataLocal.shopName, frameX + frameWidth / 2, headerY + headerHeight / 2 + 12 * scale)
-
-          // Add subtle text shadow
-          ctx.shadowColor = "rgba(0, 0, 0, 0.3)"
-          ctx.shadowBlur = 5 * scale
-          ctx.shadowOffsetX = 2 * scale
-          ctx.shadowOffsetY = 2 * scale
-          ctx.fillText(bannerDataLocal.shopName, frameX + frameWidth / 2, headerY + headerHeight / 2 + 12 * scale)
-          ctx.shadowColor = "transparent"
         }
 
-        // Premium corner decorations
-        ctx.fillStyle = "#fbbf24"
-        ctx.beginPath()
-        ctx.arc(frameX + 35 * scale, headerY + headerHeight - 15 * scale, 4 * scale, 0, 2 * Math.PI)
-        ctx.fill()
-
-        ctx.beginPath()
-        ctx.arc(frameX + frameWidth - 35 * scale, headerY + 15 * scale, 4 * scale, 0, 2 * Math.PI)
-        ctx.fill()
-
-        // Main horizontal image - positioned after header
+        // Main horizontal image
         const mainImageY = headerY + headerHeight + 25 * scale
         const mainImageHeight = frameHeight * 0.48
         const mainImageWidth = frameWidth - 50 * scale
@@ -1485,184 +826,95 @@ export default function SocialBannerCreator() {
             mainImageY,
             mainImageWidth,
             mainImageHeight,
-            canvas,
           )
 
           ctx.restore()
-
-          // Add premium border
-          ctx.strokeStyle = "#e2e8f0"
-          ctx.lineWidth = 2 * scale
-          ctx.beginPath()
-          ctx.roundRect(mainImageX, mainImageY, mainImageWidth, mainImageHeight, 15 * scale)
-          ctx.stroke()
-        } else {
-          // Better placeholder
-          ctx.fillStyle = "#f8fafc"
-          ctx.beginPath()
-          ctx.roundRect(mainImageX, mainImageY, mainImageWidth, mainImageHeight, 15 * scale)
-          ctx.fill()
-
-          ctx.strokeStyle = "#e2e8f0"
-          ctx.lineWidth = 2 * scale
-          ctx.setLineDash([10 * scale, 10 * scale])
-          ctx.beginPath()
-          ctx.roundRect(mainImageX, mainImageY, mainImageWidth, mainImageHeight, 15 * scale)
-          ctx.stroke()
-          ctx.setLineDash([])
-
-          ctx.fillStyle = "#94a3b8"
-          ctx.font = `${32 * scale}px Inter, sans-serif`
-          ctx.textAlign = "center"
-          ctx.fillText("📷", mainImageX + mainImageWidth / 2, mainImageY + mainImageHeight / 2 + 12 * scale)
         }
 
-        await drawVerticalImages()
+        // Vertical images
+        const verticalImagesY = mainImageY + mainImageHeight + 20 * scale
+        const verticalImageHeight = frameHeight * 0.22
+        const verticalImageWidth = (mainImageWidth - 20 * scale) / 3
 
-        async function drawVerticalImages() {
-          const verticalImagesY = mainImageY + mainImageHeight + 20 * scale
-          const verticalImageHeight = frameHeight * 0.22
-          const verticalImageWidth = (mainImageWidth - 20 * scale) / 3
+        const verticalImages = [
+          bannerDataLocal.verticalImage1,
+          bannerDataLocal.verticalImage2,
+          bannerDataLocal.verticalImage3,
+        ]
+        const verticalFilters = [
+          bannerDataLocal.imageFilters.verticalImage1,
+          bannerDataLocal.imageFilters.verticalImage2,
+          bannerDataLocal.imageFilters.verticalImage3,
+        ]
 
-          const verticalImages = [
-            bannerDataLocal.verticalImage1,
-            bannerDataLocal.verticalImage2,
-            bannerDataLocal.verticalImage3,
-          ]
-          const verticalFilters = [
-            bannerDataLocal.imageFilters.verticalImage1,
-            bannerDataLocal.imageFilters.verticalImage2,
-            bannerDataLocal.imageFilters.verticalImage3,
-          ]
+        for (let index = 0; index < verticalImages.length; index++) {
+          const imageSrc = verticalImages[index]
+          const imageX = mainImageX + index * (verticalImageWidth + 10 * scale)
 
-          for (let index = 0; index < verticalImages.length; index++) {
-            const imageSrc = verticalImages[index]
-            const imageX = mainImageX + index * (verticalImageWidth + 10 * scale)
+          if (imageSrc) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
+            ctx.clip()
 
-            if (imageSrc) {
-              ctx.save()
-              ctx.beginPath()
-              ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
-              ctx.clip()
+            await drawImageWithFilters(
+              ctx,
+              imageSrc,
+              verticalFilters[index],
+              imageX,
+              verticalImagesY,
+              verticalImageWidth,
+              verticalImageHeight,
+            )
 
-              await drawImageWithFilters(
-                ctx,
-                imageSrc,
-                verticalFilters[index],
-                imageX,
-                verticalImagesY,
-                verticalImageWidth,
-                verticalImageHeight,
-                canvas,
-              )
+            ctx.restore()
+          }
+        }
 
-              ctx.restore()
+        // Text content
+        const textStartY = verticalImagesY + verticalImageHeight + 40 * scale
 
-              // Add premium border
-              ctx.strokeStyle = "#e2e8f0"
-              ctx.lineWidth = 1 * scale
-              ctx.beginPath()
-              ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
-              ctx.stroke()
+        if (bannerDataLocal.productName) {
+          ctx.fillStyle = "#1e293b"
+          ctx.font = `bold ${bannerDataLocal.textStyles.productNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.productNameFont]}`
+          ctx.textAlign = "left"
+          ctx.fillText(bannerDataLocal.productName, frameX + 25 * scale, textStartY)
+        }
+
+        if (bannerDataLocal.description) {
+          ctx.fillStyle = "#374151"
+          ctx.font = `${bannerDataLocal.textStyles.descriptionSize * scale}px ${fontOptions[bannerDataLocal.textStyles.descriptionFont]}`
+          ctx.textAlign = "left"
+
+          const maxWidth = frameWidth - 50 * scale
+          const words = bannerDataLocal.description.split(" ")
+          let line = ""
+          let y = textStartY + 40 * scale
+          const lineHeight = 25 * scale
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " "
+            const metrics = ctx.measureText(testLine)
+
+            if (metrics.width > maxWidth && n > 0) {
+              ctx.fillText(line, frameX + 25 * scale, y)
+              line = words[n] + " "
+              y += lineHeight
+              if (y > frameY + frameHeight - 50 * scale) break
             } else {
-              // Better placeholder
-              ctx.fillStyle = "#f8fafc"
-              ctx.beginPath()
-              ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
-              ctx.fill()
-
-              ctx.strokeStyle = "#e2e8f0"
-              ctx.lineWidth = 1 * scale
-              ctx.setLineDash([5 * scale, 5 * scale])
-              ctx.beginPath()
-              ctx.roundRect(imageX, verticalImagesY, verticalImageWidth, verticalImageHeight, 12 * scale)
-              ctx.stroke()
-              ctx.setLineDash([])
-
-              ctx.fillStyle = "#94a3b8"
-              ctx.font = `${20 * scale}px Inter, sans-serif`
-              ctx.textAlign = "center"
-              ctx.fillText("📷", imageX + verticalImageWidth / 2, verticalImagesY + verticalImageHeight / 2 + 8 * scale)
+              line = testLine
             }
           }
+          ctx.fillText(line, frameX + 25 * scale, y)
         }
 
-        await drawSocialGalleryText()
-
-        async function drawSocialGalleryText() {
-          // Position text BELOW the vertical images
-          const textStartY = mainImageY + mainImageHeight + frameHeight * 0.25 + 40 * scale
-
-          // Product name and price header - now properly positioned below images
-          const headerY = textStartY
-
-          if (bannerDataLocal.productName) {
-            ctx.fillStyle = "#1e293b"
-            ctx.font = `bold ${bannerDataLocal.textStyles.productNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.productNameFont]}`
-            ctx.textAlign = "left"
-            ctx.fillText(bannerDataLocal.productName, frameX + 25 * scale, headerY)
-          }
-
-          // Description with better formatting
-          if (bannerDataLocal.description) {
-            ctx.fillStyle = "#374151"
-            ctx.font = `${bannerDataLocal.textStyles.descriptionSize * scale}px ${fontOptions[bannerDataLocal.textStyles.descriptionFont]}`
-            ctx.textAlign = "left"
-
-            const maxWidth = frameWidth - 50 * scale
-            const words = bannerDataLocal.description.split(" ")
-            let line = ""
-            let y = headerY + 40 * scale
-            const lineHeight = 25 * scale
-
-            for (let n = 0; n < words.length; n++) {
-              const testLine = line + words[n] + " "
-              const metrics = ctx.measureText(testLine)
-
-              if (metrics.width > maxWidth && n > 0) {
-                ctx.fillText(line, frameX + 25 * scale, y)
-                line = words[n] + " "
-                y += lineHeight
-                if (y > frameY + frameHeight - 50 * scale) break
-              } else {
-                line = testLine
-              }
-            }
-            ctx.fillText(line, frameX + 25 * scale, y)
-          }
-
-          // Premium footer with brand signature and price
+        // Price
+        if (bannerDataLocal.price) {
           const footerY = frameY + frameHeight - 45 * scale
-
-          // Premium divider
-          const dividerGradient = ctx.createLinearGradient(frameX + 25 * scale, 0, frameX + frameWidth - 25 * scale, 0)
-          dividerGradient.addColorStop(0, "transparent")
-          dividerGradient.addColorStop(0.5, "#fbbf24")
-          dividerGradient.addColorStop(1, "transparent")
-          ctx.strokeStyle = dividerGradient
-          ctx.lineWidth = 2 * scale
-          ctx.beginPath()
-          ctx.moveTo(frameX + 25 * scale, footerY - 25 * scale)
-          ctx.lineTo(frameX + frameWidth - 25 * scale, footerY - 25 * scale)
-          ctx.stroke()
-
-          // Price in premium gold color
-          if (bannerDataLocal.price) {
-            ctx.fillStyle = "#fbbf24"
-            ctx.font = `bold ${bannerDataLocal.textStyles.priceSize * scale}px ${fontOptions[bannerDataLocal.textStyles.priceFont]}`
-            ctx.textAlign = "center"
-            ctx.fillText(`💰 $${bannerDataLocal.price}`, frameX + frameWidth / 2, footerY - 5 * scale)
-          }
-
-          // Premium brand signature
-          ctx.fillStyle = "#6b7280"
-          ctx.font = `italic ${14 * scale}px "Dancing Script", cursive`
+          ctx.fillStyle = "#fbbf24"
+          ctx.font = `bold ${bannerDataLocal.textStyles.priceSize * scale}px ${fontOptions[bannerDataLocal.textStyles.priceFont]}`
           ctx.textAlign = "center"
-          ctx.fillText(
-            `✨ Crafted by ${bannerDataLocal.shopName || "Premium Shop"} ✨`,
-            frameX + frameWidth / 2,
-            footerY + 15 * scale,
-          )
+          ctx.fillText(`$${bannerDataLocal.price}`, frameX + frameWidth / 2, footerY - 5 * scale)
         }
       }
 
@@ -1673,18 +925,13 @@ export default function SocialBannerCreator() {
         const frameX = frameMargin
         const frameY = (canvas.height - frameHeight) / 2 - 100 * scale
 
-        // Draw main white frame with rounded corners
+        // Draw main white frame
         ctx.fillStyle = "#ffffff"
         ctx.beginPath()
         ctx.roundRect(frameX, frameY, frameWidth, frameHeight, 20 * scale)
         ctx.fill()
 
-        // Add subtle shadow
-        ctx.shadowColor = "rgba(0, 0, 0, 0.1)"
-        ctx.shadowBlur = 20 * scale
-        ctx.shadowOffsetY = 10 * scale
-
-        // Draw header text (shop name in cursive)
+        // Header text
         if (bannerDataLocal.shopName) {
           ctx.fillStyle = "#2d5a3d"
           ctx.font = `${45 * scale}px Dancing Script, cursive`
@@ -1692,16 +939,7 @@ export default function SocialBannerCreator() {
           ctx.fillText(bannerDataLocal.shopName, frameX + 30 * scale, frameY + 60 * scale)
         }
 
-        // Draw plus symbols in top right
-        ctx.fillStyle = "#2d5a3d"
-        ctx.font = `${25 * scale}px Inter, sans-serif`
-        ctx.textAlign = "right"
-        const plusText = "++++"
-        for (let i = 0; i < 3; i++) {
-          ctx.fillText(plusText, frameX + frameWidth - 30 * scale, frameY + 40 * scale + i * 25 * scale)
-        }
-
-        // Draw product image with filters
+        // Product image
         if (bannerDataLocal.productImage) {
           const imageMargin = 30 * scale
           const imageWidth = frameWidth - imageMargin * 2
@@ -1722,114 +960,13 @@ export default function SocialBannerCreator() {
             imageY,
             imageWidth,
             imageHeight,
-            canvas,
           )
 
           ctx.restore()
         }
-
-        await drawColorPalette()
-
-        async function drawColorPalette() {
-          const paletteY = frameY + frameHeight - 120 * scale
-
-          // "COLOR PALLET" text
-          ctx.fillStyle = "#1f2937"
-          ctx.font = `bold ${28 * scale}px Inter, sans-serif`
-          ctx.textAlign = "left"
-          ctx.fillText("COLOR", frameX + 30 * scale, paletteY)
-          ctx.fillText("PALLET", frameX + 30 * scale, paletteY + 35 * scale)
-
-          // Color swatches
-          const colors = ["#7a9b8e", "#5a7c6f", "#8fa69a", "#6b8578", "#4a6b5c"]
-          const swatchSize = 25 * scale
-          const swatchSpacing = 8 * scale
-          const swatchStartX = frameX + 200 * scale
-
-          colors.forEach((color, index) => {
-            ctx.fillStyle = color
-            ctx.fillRect(
-              swatchStartX + index * (swatchSize + swatchSpacing),
-              paletteY - 10 * scale,
-              swatchSize,
-              swatchSize,
-            )
-          })
-
-          // Attribution text
-          if (bannerDataLocal.photographer) {
-            ctx.fillStyle = "#6b7280"
-            ctx.font = `${16 * scale}px Inter, sans-serif`
-            ctx.textAlign = "left"
-            ctx.fillText(`pict by: ${bannerDataLocal.photographer}`, frameX + 200 * scale, paletteY + 50 * scale)
-          }
-        }
-
-        await drawInfoCard()
-
-        async function drawInfoCard() {
-          const cardY = frameY + frameHeight + 40 * scale
-          const cardWidth = frameWidth * 0.8
-          const cardHeight = 120 * scale
-          const cardX = frameX + (frameWidth - cardWidth) / 2
-
-          // Draw rounded rectangle for info card
-          ctx.fillStyle = "rgba(45, 90, 61, 0.9)"
-          ctx.beginPath()
-          ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 15 * scale)
-          ctx.fill()
-
-          // Card content
-          ctx.fillStyle = "#ffffff"
-          ctx.font = `${16 * scale}px Inter, sans-serif`
-          ctx.textAlign = "left"
-
-          if (bannerDataLocal.productName) {
-            ctx.fillText(`product: ${bannerDataLocal.productName}`, cardX + 20 * scale, cardY + 30 * scale)
-          }
-
-          if (bannerDataLocal.description) {
-            // Wrap description text
-            const maxWidth = cardWidth - 40 * scale
-            const words = bannerDataLocal.description.split(" ")
-            let line = ""
-            let y = cardY + 55 * scale
-
-            for (let n = 0; n < words.length; n++) {
-              const testLine = line + words[n] + " "
-              const metrics = ctx.measureText(testLine)
-
-              if (metrics.width > maxWidth && n > 0) {
-                ctx.fillText(line, cardX + 20 * scale, y)
-                line = words[n] + " "
-                y += 20 * scale
-                if (y > cardY + cardHeight - 20 * scale) break // Prevent overflow
-              } else {
-                line = testLine
-              }
-            }
-            ctx.fillText(line, cardX + 20 * scale, y)
-          }
-
-          // Bookmark icon
-          ctx.strokeStyle = "#ffffff"
-          ctx.lineWidth = 2 * scale
-          ctx.beginPath()
-          ctx.roundRect(cardX + cardWidth - 40 * scale, cardY + 15 * scale, 20 * scale, 25 * scale, 2 * scale)
-          ctx.stroke()
-
-          // Bookmark triangle
-          ctx.fillStyle = "#ffffff"
-          ctx.beginPath()
-          ctx.moveTo(cardX + cardWidth - 35 * scale, cardY + 35 * scale)
-          ctx.lineTo(cardX + cardWidth - 30 * scale, cardY + 30 * scale)
-          ctx.lineTo(cardX + cardWidth - 25 * scale, cardY + 35 * scale)
-          ctx.fill()
-        }
       }
 
       async function drawOriginalDesign() {
-        // Keep original design logic for other themes
         const theme = themes[bannerDataLocal.designTheme]
 
         // Draw product image if available
@@ -1852,30 +989,24 @@ export default function SocialBannerCreator() {
             imageY,
             imageSize,
             imageSize,
-            canvas,
           )
 
           ctx.restore()
         }
 
-        await drawOriginalText()
+        // Draw text
+        ctx.fillStyle = theme.shopNameColor
+        ctx.font = `bold ${bannerDataLocal.textStyles.shopNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.shopNameFont]}`
+        ctx.textAlign = "center"
+        ctx.fillText(bannerDataLocal.shopName, canvas.width / 2, canvas.height * 0.75)
 
-        async function drawOriginalText() {
-          // Draw shop name
-          ctx.fillStyle = theme.shopNameColor
-          ctx.font = `bold ${bannerDataLocal.textStyles.shopNameSize * scale}px ${fontOptions[bannerDataLocal.textStyles.shopNameFont]}`
-          ctx.textAlign = "center"
-          ctx.fillText(bannerDataLocal.shopName, canvas.width / 2, canvas.height * 0.75)
-
-          // Draw product name
-          ctx.fillStyle = theme.productNameColor
-          const productFontSize =
-            bannerDataLocal.designTheme === "elegant_cursive"
-              ? bannerDataLocal.textStyles.productNameSize * scale
-              : 40 * scale
-          ctx.font = `${productFontSize}px ${theme.productNameFont}`
-          ctx.fillText(bannerDataLocal.productName, canvas.width / 2, canvas.height * 0.82)
-        }
+        ctx.fillStyle = theme.productNameColor
+        const productFontSize =
+          bannerDataLocal.designTheme === "elegant_cursive"
+            ? bannerDataLocal.textStyles.productNameSize * scale
+            : 40 * scale
+        ctx.font = `${productFontSize}px ${theme.productNameFont}`
+        ctx.fillText(bannerDataLocal.productName, canvas.width / 2, canvas.height * 0.82)
       }
     } catch (error) {
       console.error("Error generating banner:", error)
@@ -1965,13 +1096,21 @@ export default function SocialBannerCreator() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">Social Banner Creator</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Create stunning social media banners with professional templates, advanced filters, and customizable designs
+        <div className="text-center space-y-6 mb-12">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            Social Banner Creator
+            <Sparkles className="inline-block w-10 h-10 ml-3 text-yellow-500" />
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Create stunning social media banners with professional templates, advanced filters, and customizable
+            designs. Perfect for businesses, creators, and marketers.
           </p>
-          <div className="flex justify-center gap-4">
-            <Button asChild size="lg">
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
               <Link href="/editor">
                 <Edit className="w-5 h-5 mr-2" />
                 Start Creating
@@ -1987,11 +1126,16 @@ export default function SocialBannerCreator() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {stats.map((stat) => (
-            <Card key={stat.name}>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+            <Card key={stat.name} className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-center mb-3">
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <stat.icon className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
                 <div className="text-sm text-gray-600">{stat.name}</div>
               </CardContent>
             </Card>
@@ -1999,29 +1143,31 @@ export default function SocialBannerCreator() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {features.map((feature) => {
             const Icon = feature.icon
             return (
-              <Card key={feature.name} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className={`p-2 rounded-lg ${feature.color} text-white`}>
+              <Card key={feature.name} className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div
+                      className={`p-3 rounded-xl ${feature.color} text-white group-hover:scale-110 transition-transform`}
+                    >
                       <Icon className="w-6 h-6" />
                     </div>
-                    {feature.isNew && (
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                    {feature.badge && (
+                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
                         <Sparkles className="w-3 h-3 mr-1" />
-                        New
+                        {feature.badge}
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-lg">{feature.name}</CardTitle>
+                  <CardTitle className="text-xl group-hover:text-blue-600 transition-colors">{feature.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-4">{feature.description}</p>
-                  <Button asChild className="w-full">
-                    <Link href={feature.href}>Explore</Link>
+                  <p className="text-gray-600 mb-6 leading-relaxed">{feature.description}</p>
+                  <Button asChild className="w-full group-hover:bg-blue-600 transition-colors">
+                    <Link href={feature.href}>Explore Feature</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -2029,24 +1175,34 @@ export default function SocialBannerCreator() {
           })}
         </div>
 
-        {/* Quick Start */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <h3 className="text-2xl font-bold text-gray-900">Ready to Get Started?</h3>
-              <p className="text-gray-600">
-                Jump right into creating your first social media banner or explore our new Maritime Adventure template
+        {/* Quick Start Section */}
+        <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200 mb-12">
+          <CardContent className="p-8">
+            <div className="text-center space-y-6">
+              <div className="flex justify-center">
+                <div className="p-4 bg-white rounded-full shadow-lg">
+                  <Sparkles className="w-12 h-12 text-blue-600" />
+                </div>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900">Ready to Get Started?</h3>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Jump right into creating your first social media banner or explore our new Maritime Adventure template.
+                No design experience required!
               </p>
-              <div className="flex justify-center gap-4">
-                <Button asChild>
+              <div className="flex justify-center gap-4 flex-wrap">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
                   <Link href="/editor">
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Edit className="w-5 h-5 mr-2" />
                     Create Banner
                   </Link>
                 </Button>
-                <Button variant="outline" asChild>
+                <Button variant="outline" size="lg" asChild className="border-blue-300 hover:bg-blue-50 bg-transparent">
                   <Link href="/maritime">
-                    <Anchor className="w-4 h-4 mr-2" />
+                    <Anchor className="w-5 h-5 mr-2" />
                     Try Maritime Template
                   </Link>
                 </Button>
@@ -2057,11 +1213,11 @@ export default function SocialBannerCreator() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Form Section */}
-          <Card>
+          <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5" />
-                Banner Details
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <ImageIcon className="w-6 h-6" />
+                Banner Creator
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -2113,75 +1269,65 @@ export default function SocialBannerCreator() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Product Image</Label>
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Image
-                      </Button>
-                      {bannerDataLocal.productImage && <span className="text-sm text-green-600">✓ Image uploaded</span>}
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </div>
+                  <DragDropZone
+                    label="Product Image"
+                    currentImage={bannerDataLocal.productImage}
+                    onFileUpload={(file) => {
+                      if (file) {
+                        const reader = new FileReader()
+                        reader.onload = (e) => {
+                          setBannerDataLocal((prev) => ({ ...prev, productImage: e.target?.result as string }))
+                        }
+                        reader.readAsDataURL(file)
+                      } else {
+                        setBannerDataLocal((prev) => ({ ...prev, productImage: null }))
+                      }
+                    }}
+                  />
 
-                  <div className="space-y-2">
-                    <Label>Main Horizontal Image</Label>
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => horizontalImageRef.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Horizontal
-                      </Button>
-                      {bannerDataLocal.horizontalImage && <span className="text-sm text-green-600">✓ Uploaded</span>}
-                    </div>
-                    <input
-                      ref={horizontalImageRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleHorizontalImageUpload}
-                      className="hidden"
-                    />
-                  </div>
+                  <DragDropZone
+                    label="Main Horizontal Image"
+                    currentImage={bannerDataLocal.horizontalImage}
+                    onFileUpload={(file) => {
+                      if (file) {
+                        const reader = new FileReader()
+                        reader.onload = (e) => {
+                          setBannerDataLocal((prev) => ({ ...prev, horizontalImage: e.target?.result as string }))
+                        }
+                        reader.readAsDataURL(file)
+                      } else {
+                        setBannerDataLocal((prev) => ({ ...prev, horizontalImage: null }))
+                      }
+                    }}
+                  />
 
                   <div className="space-y-2">
                     <Label>Vertical Images (3 images)</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {[1, 2, 3].map((num) => (
-                        <div key={num} className="space-y-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => verticalImageRefs.current[num - 1]?.click()}
-                            className="w-full"
-                          >
-                            <Upload className="w-3 h-3 mr-1" />
-                            {num}
-                          </Button>
-                          {bannerDataLocal[`verticalImage${num}`] && (
-                            <span className="text-xs text-green-600 block text-center">✓</span>
-                          )}
-                          <input
-                            ref={(el) => (verticalImageRefs.current[num - 1] = el)}
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleVerticalImageUpload(e, num as 1 | 2 | 3)}
-                            className="hidden"
-                          />
-                        </div>
+                        <DragDropZone
+                          key={num}
+                          label={`Image ${num}`}
+                          currentImage={bannerDataLocal[`verticalImage${num}` as keyof BannerData] as string}
+                          onFileUpload={(file) => {
+                            if (file) {
+                              const reader = new FileReader()
+                              reader.onload = (e) => {
+                                setBannerDataLocal((prev) => ({
+                                  ...prev,
+                                  [`verticalImage${num}`]: e.target?.result as string,
+                                }))
+                              }
+                              reader.readAsDataURL(file)
+                            } else {
+                              setBannerDataLocal((prev) => ({
+                                ...prev,
+                                [`verticalImage${num}`]: null,
+                              }))
+                            }
+                          }}
+                          compact={true}
+                        />
                       ))}
                     </div>
                   </div>
@@ -2248,53 +1394,43 @@ export default function SocialBannerCreator() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>Main Inspirational Image</Label>
-                        <div className="flex items-center gap-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => inspirationalImage1Ref.current?.click()}
-                            className="flex items-center gap-2"
-                          >
-                            <Upload className="w-4 h-4" />
-                            Upload Image 1
-                          </Button>
-                          {bannerDataLocal.inspirationalImage1 && (
-                            <span className="text-sm text-green-600">✓ Uploaded</span>
-                          )}
-                        </div>
-                        <input
-                          ref={inspirationalImage1Ref}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleInspirationalImage1Upload}
-                          className="hidden"
-                        />
-                      </div>
+                      <DragDropZone
+                        label="Main Inspirational Image"
+                        currentImage={bannerDataLocal.inspirationalImage1}
+                        onFileUpload={(file) => {
+                          if (file) {
+                            const reader = new FileReader()
+                            reader.onload = (e) => {
+                              setBannerDataLocal((prev) => ({
+                                ...prev,
+                                inspirationalImage1: e.target?.result as string,
+                              }))
+                            }
+                            reader.readAsDataURL(file)
+                          } else {
+                            setBannerDataLocal((prev) => ({ ...prev, inspirationalImage1: null }))
+                          }
+                        }}
+                      />
 
-                      <div className="space-y-2">
-                        <Label>Secondary Image (Optional)</Label>
-                        <div className="flex items-center gap-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => inspirationalImage2Ref.current?.click()}
-                            className="flex items-center gap-2"
-                          >
-                            <Upload className="w-4 h-4" />
-                            Upload Image 2
-                          </Button>
-                          {bannerDataLocal.inspirationalImage2 && (
-                            <span className="text-sm text-green-600">✓ Uploaded</span>
-                          )}
-                        </div>
-                        <input
-                          ref={inspirationalImage2Ref}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleInspirationalImage2Upload}
-                          className="hidden"
-                        />
-                      </div>
+                      <DragDropZone
+                        label="Secondary Image (Optional)"
+                        currentImage={bannerDataLocal.inspirationalImage2}
+                        onFileUpload={(file) => {
+                          if (file) {
+                            const reader = new FileReader()
+                            reader.onload = (e) => {
+                              setBannerDataLocal((prev) => ({
+                                ...prev,
+                                inspirationalImage2: e.target?.result as string,
+                              }))
+                            }
+                            reader.readAsDataURL(file)
+                          } else {
+                            setBannerDataLocal((prev) => ({ ...prev, inspirationalImage2: null }))
+                          }
+                        }}
+                      />
                     </>
                   )}
 
@@ -2310,8 +1446,8 @@ export default function SocialBannerCreator() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1080">Standard (1080x1920)</SelectItem>
-                        <SelectItem value="4k">4K (2160x3840)</SelectItem>
+                        <SelectItem value="1080">Standard (1920x1080)</SelectItem>
+                        <SelectItem value="4k">4K (3840x2160)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -2321,7 +1457,7 @@ export default function SocialBannerCreator() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-4">
                       <Palette className="w-5 h-5" />
-                      <h3 className="font-semibold">Professional Image Filters & Textures</h3>
+                      <h3 className="font-semibold">Professional Image Filters</h3>
                     </div>
 
                     <div className="space-y-2">
@@ -2345,38 +1481,17 @@ export default function SocialBannerCreator() {
                     <div className="space-y-2">
                       <Label>Filter Presets</Label>
                       <div className="grid grid-cols-3 gap-2">
-                        {Object.keys(filterPresets)
-                          .slice(0, 12)
-                          .map((preset) => (
-                            <Button
-                              key={preset}
-                              variant={currentFilters.preset === preset ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => applyFilterPreset(preset)}
-                              className="capitalize text-xs"
-                            >
-                              {preset === "blackwhite" ? "B&W" : preset.replace("_", " ")}
-                            </Button>
-                          ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>🎨 Artistic Texture Presets</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {Object.keys(filterPresets)
-                          .slice(12)
-                          .map((preset) => (
-                            <Button
-                              key={preset}
-                              variant={currentFilters.preset === preset ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => applyFilterPreset(preset)}
-                              className="capitalize text-xs"
-                            >
-                              {preset.replace("_", " ")}
-                            </Button>
-                          ))}
+                        {Object.keys(filterPresets).map((preset) => (
+                          <Button
+                            key={preset}
+                            variant={currentFilters.preset === preset ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => applyFilterPreset(preset)}
+                            className="capitalize text-xs"
+                          >
+                            {preset === "blackwhite" ? "B&W" : preset}
+                          </Button>
+                        ))}
                       </div>
                     </div>
 
@@ -2472,105 +1587,6 @@ export default function SocialBannerCreator() {
                         </div>
                       </div>
 
-                      <div className="space-y-2 border-t pt-4">
-                        <Label>🎬 Advanced Effects</Label>
-
-                        <div className="space-y-2">
-                          <Label>HDR Effect: {currentFilters.hdr}%</Label>
-                          <Slider
-                            value={[currentFilters.hdr]}
-                            onValueChange={([value]) => updateFilter("hdr", value)}
-                            min={0}
-                            max={100}
-                            step={1}
-                            className="w-full"
-                          />
-                          <p className="text-xs text-gray-500">Enhances dynamic range and color depth</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Vignette: {currentFilters.vignette}%</Label>
-                          <Slider
-                            value={[currentFilters.vignette]}
-                            onValueChange={([value]) => updateFilter("vignette", value)}
-                            min={0}
-                            max={100}
-                            step={1}
-                            className="w-full"
-                          />
-                          <p className="text-xs text-gray-500">Darkens edges for dramatic focus</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Film Grain: {currentFilters.filmGrain}%</Label>
-                          <Slider
-                            value={[currentFilters.filmGrain]}
-                            onValueChange={([value]) => updateFilter("filmGrain", value)}
-                            min={0}
-                            max={100}
-                            step={1}
-                            className="w-full"
-                          />
-                          <p className="text-xs text-gray-500">Adds authentic film texture</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 border-t pt-4">
-                        <Label>🎨 Texture Overlays</Label>
-
-                        <div className="space-y-2">
-                          <Label>Texture Type</Label>
-                          <Select
-                            value={currentFilters.textureType}
-                            onValueChange={(value) => updateFilter("textureType", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(textureTypes).map(([key, label]) => (
-                                <SelectItem key={key} value={key}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Texture Intensity: {currentFilters.textureIntensity}%</Label>
-                          <Slider
-                            value={[currentFilters.textureIntensity]}
-                            onValueChange={([value]) => updateFilter("textureIntensity", value)}
-                            min={0}
-                            max={100}
-                            step={1}
-                            className="w-full"
-                          />
-                          <p className="text-xs text-gray-500">Controls texture visibility and strength</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Blend Mode</Label>
-                          <Select
-                            value={currentFilters.textureBlendMode}
-                            onValueChange={(value) => updateFilter("textureBlendMode", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(blendModes).map(([key, label]) => (
-                                <SelectItem key={key} value={key}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-gray-500">How texture blends with the image</p>
-                        </div>
-                      </div>
-
                       <div className="flex gap-2">
                         <Button variant="outline" onClick={resetFilters} className="flex-1 bg-transparent">
                           Reset All
@@ -2585,7 +1601,6 @@ export default function SocialBannerCreator() {
                           <img
                             src={
                               (bannerDataLocal[selectedImageForFilter as keyof BannerData] as string) ||
-                              "/placeholder.svg" ||
                               "/placeholder.svg" ||
                               "/placeholder.svg"
                             }
@@ -2684,190 +1699,6 @@ export default function SocialBannerCreator() {
                         </div>
                       </div>
 
-                      {/* Description Styling */}
-                      <div className="space-y-3 p-4 border rounded-lg">
-                        <Label className="font-semibold text-base">Description</Label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-2">
-                            <Label>Font Family</Label>
-                            <Select
-                              value={bannerDataLocal.textStyles.descriptionFont}
-                              onValueChange={(value) => updateTextStyle("descriptionFont", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(fontOptions).map(([key, value]) => (
-                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                                    {key}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Font Size: {bannerDataLocal.textStyles.descriptionSize}px</Label>
-                            <Slider
-                              value={[bannerDataLocal.textStyles.descriptionSize]}
-                              onValueChange={([value]) => updateTextStyle("descriptionSize", value)}
-                              min={10}
-                              max={32}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Price Styling */}
-                      <div className="space-y-3 p-4 border rounded-lg">
-                        <Label className="font-semibold text-base">Price</Label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-2">
-                            <Label>Font Family</Label>
-                            <Select
-                              value={bannerDataLocal.textStyles.priceFont}
-                              onValueChange={(value) => updateTextStyle("priceFont", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(fontOptions).map(([key, value]) => (
-                                  <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                                    {key}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Font Size: {bannerDataLocal.textStyles.priceSize}px</Label>
-                            <Slider
-                              value={[bannerDataLocal.textStyles.priceSize]}
-                              onValueChange={([value]) => updateTextStyle("priceSize", value)}
-                              min={12}
-                              max={48}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {bannerDataLocal.designTheme === "inspirational_vibes" && (
-                        <>
-                          {/* Author Name Styling */}
-                          <div className="space-y-3 p-4 border rounded-lg">
-                            <Label className="font-semibold text-base">Author Name</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-2">
-                                <Label>Font Family</Label>
-                                <Select
-                                  value={bannerDataLocal.textStyles.authorNameFont}
-                                  onValueChange={(value) => updateTextStyle("authorNameFont", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(fontOptions).map(([key, value]) => (
-                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                                        {key}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label>Font Size: {bannerDataLocal.textStyles.authorNameSize}px</Label>
-                                <Slider
-                                  value={[bannerDataLocal.textStyles.authorNameSize]}
-                                  onValueChange={([value]) => updateTextStyle("authorNameSize", value)}
-                                  min={10}
-                                  max={32}
-                                  step={1}
-                                  className="w-full"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Inspirational Text Styling */}
-                          <div className="space-y-3 p-4 border rounded-lg">
-                            <Label className="font-semibold text-base">Inspirational Text</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-2">
-                                <Label>Font Family</Label>
-                                <Select
-                                  value={bannerDataLocal.textStyles.inspirationalTextFont}
-                                  onValueChange={(value) => updateTextStyle("inspirationalTextFont", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(fontOptions).map(([key, value]) => (
-                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                                        {key}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label>Font Size: {bannerDataLocal.textStyles.inspirationalTextSize}px</Label>
-                                <Slider
-                                  value={[bannerDataLocal.textStyles.inspirationalTextSize]}
-                                  onValueChange={([value]) => updateTextStyle("inspirationalTextSize", value)}
-                                  min={10}
-                                  max={24}
-                                  step={1}
-                                  className="w-full"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Date Text Styling */}
-                          <div className="space-y-3 p-4 border rounded-lg">
-                            <Label className="font-semibold text-base">Date Text</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-2">
-                                <Label>Font Family</Label>
-                                <Select
-                                  value={bannerDataLocal.textStyles.dateTextFont}
-                                  onValueChange={(value) => updateTextStyle("dateTextFont", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(fontOptions).map(([key, value]) => (
-                                      <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                                        {key}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label>Font Size: {bannerDataLocal.textStyles.dateTextSize}px</Label>
-                                <Slider
-                                  value={[bannerDataLocal.textStyles.dateTextSize]}
-                                  onValueChange={([value]) => updateTextStyle("dateTextSize", value)}
-                                  min={10}
-                                  max={24}
-                                  step={1}
-                                  className="w-full"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -2884,91 +1715,42 @@ export default function SocialBannerCreator() {
                 </TabsContent>
               </Tabs>
 
-              <div className="space-y-4 border-t pt-6">
-                <h3 className="font-semibold text-lg">🚀 AI-Powered Features</h3>
-
-                <div className="space-y-2">
-                  <Label>Smart Color Palette</Label>
-                  <div className="flex gap-2">
-                    {brandColors.map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-8 h-8 rounded-full border-2 border-gray-300"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setBrandColors([
-                          "#" + Math.floor(Math.random() * 16777215).toString(16),
-                          ...brandColors.slice(0, 2),
-                        ])
-                      }
-                    >
-                      Generate New
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Export Formats</Label>
-                  <div className="flex gap-2">
-                    {["PNG", "JPG", "WebP"].map((format) => (
-                      <Button
-                        key={format}
-                        variant={exportFormats.includes(format.toLowerCase()) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          const fmt = format.toLowerCase()
-                          setExportFormats((prev) =>
-                            prev.includes(fmt) ? prev.filter((f) => f !== fmt) : [...prev, fmt],
-                          )
-                        }}
-                      >
-                        {format}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
               <Button
                 onClick={() => downloadBanner("png")}
                 disabled={!bannerDataLocal.shopName || !bannerDataLocal.productName || isGenerating}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 size="lg"
               >
                 <Download className="w-4 h-4 mr-2" />
                 {isGenerating ? "Generating..." : "Download Banner"}
               </Button>
 
-              {exportFormats.length > 1 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {exportFormats.map((format) => (
-                    <Button
-                      key={format}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => downloadBanner(format)}
-                      disabled={isGenerating}
-                    >
-                      {format.toUpperCase()}
-                    </Button>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-3 gap-2">
+                {["png", "jpg", "webp"].map((format) => (
+                  <Button
+                    key={format}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadBanner(format)}
+                    disabled={isGenerating}
+                  >
+                    {format.toUpperCase()}
+                  </Button>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
           {/* Preview Section */}
-          <Card>
+          <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle>Live Preview</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-6 h-6" />
+                Live Preview
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[9/16] bg-gray-100 rounded-lg overflow-hidden relative">
+              <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden relative">
                 {bannerDataLocal.shopName || bannerDataLocal.productName ? (
                   bannerDataLocal.designTheme === "instagram_mood" ? (
                     <div
@@ -3103,7 +1885,7 @@ export default function SocialBannerCreator() {
                           ))}
                         </div>
 
-                        {/* Text content - positioned below images */}
+                        {/* Text content */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             {bannerDataLocal.productName && (

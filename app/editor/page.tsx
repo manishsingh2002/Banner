@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { useBanner } from "@/contexts/banner-context"
 import { DragDropZone } from "@/components/drag-drop-zone"
 import { MultiImageUploader } from "@/components/multi-image-uploader"
-import { Edit, Upload, Download, Eye, Palette, ImageIcon, Type, Sparkles, Crop } from "lucide-react"
+import { Edit, Upload, Download, Eye, Palette, ImageIcon, Type, Sparkles } from "lucide-react"
 import { useState } from "react"
 
 export default function EditorPage() {
@@ -68,19 +68,6 @@ export default function EditorPage() {
     return descriptions[theme as keyof typeof descriptions] || "Custom theme"
   }
 
-  const getCropAspectRatio = (theme: string) => {
-    const ratios = {
-      social_gallery: 1, // Square for social media
-      instagram_mood: 4 / 5, // Instagram portrait
-      minimalist: 16 / 9, // Widescreen
-      vibrant: 1, // Square
-      elegant_cursive: 3 / 2, // Photo ratio
-      inspirational_vibes: 16 / 9, // Widescreen
-      maritime_adventure: 16 / 9, // Widescreen
-    }
-    return ratios[theme as keyof typeof ratios]
-  }
-
   const currentImages = [bannerData.verticalImage1, bannerData.verticalImage2, bannerData.verticalImage3]
 
   return (
@@ -91,14 +78,8 @@ export default function EditorPage() {
             Banner Editor
             <Sparkles className="inline-block w-8 h-8 ml-2 text-yellow-500" />
           </h1>
-          <p className="text-lg text-gray-600">
-            Create stunning social media banners with drag & drop and cropping tools
-          </p>
+          <p className="text-lg text-gray-600">Create stunning social media banners with drag & drop tools</p>
           <div className="flex justify-center gap-2 mt-4">
-            <Badge variant="secondary">
-              <Crop className="w-3 h-3 mr-1" />
-              Smart Cropping
-            </Badge>
             <Badge variant="secondary">Drag & Drop</Badge>
             <Badge variant="secondary">Real-time Preview</Badge>
             <Badge variant="secondary">Multiple Formats</Badge>
@@ -238,10 +219,6 @@ export default function EditorPage() {
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Upload className="w-5 h-5" />
                       Images
-                      <Badge variant="outline" className="text-xs">
-                        <Crop className="w-3 h-3 mr-1" />
-                        Smart Crop
-                      </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -249,16 +226,12 @@ export default function EditorPage() {
                       onFileUpload={(file) => handleImageUpload("productImage", file)}
                       currentImage={bannerData.productImage}
                       label="Main Product Image"
-                      enableCropping={true}
-                      cropAspectRatio={getCropAspectRatio(bannerData.designTheme)}
                     />
 
                     <DragDropZone
                       onFileUpload={(file) => handleImageUpload("horizontalImage", file)}
                       currentImage={bannerData.horizontalImage}
                       label="Background Image"
-                      enableCropping={true}
-                      cropAspectRatio={16 / 9} // Always widescreen for backgrounds
                     />
 
                     <Separator />
@@ -268,29 +241,19 @@ export default function EditorPage() {
                       currentImages={currentImages}
                       labels={["Vertical 1", "Vertical 2", "Vertical 3"]}
                       maxImages={3}
-                      enableCropping={true}
-                      cropAspectRatio={getCropAspectRatio(bannerData.designTheme)}
                     />
 
                     {bannerData.designTheme === "inspirational_vibes" && (
                       <>
                         <Separator />
                         <div className="space-y-4">
-                          <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2">
-                            Inspirational Images
-                            <Badge variant="outline" className="text-xs">
-                              <Crop className="w-3 h-3 mr-1" />
-                              Auto-crop
-                            </Badge>
-                          </h4>
+                          <h4 className="font-medium text-sm text-gray-700">Inspirational Images</h4>
 
                           <DragDropZone
                             onFileUpload={(file) => handleImageUpload("inspirationalImage1", file)}
                             currentImage={bannerData.inspirationalImage1}
                             label="Main Inspirational Image"
                             compact
-                            enableCropping={true}
-                            cropAspectRatio={16 / 9}
                           />
 
                           <DragDropZone
@@ -298,24 +261,18 @@ export default function EditorPage() {
                             currentImage={bannerData.inspirationalImage2}
                             label="Secondary Image (Optional)"
                             compact
-                            enableCropping={true}
-                            cropAspectRatio={1} // Square for secondary
                           />
                         </div>
                       </>
                     )}
 
                     <div className="bg-blue-50 p-3 rounded-lg">
-                      <h4 className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
-                        <Crop className="w-4 h-4" />
-                        Smart Cropping Features
-                      </h4>
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Upload Tips</h4>
                       <ul className="text-xs text-blue-700 space-y-1">
-                        <li>• Automatic aspect ratio based on theme</li>
-                        <li>• Drag to reposition crop area</li>
-                        <li>• Zoom, rotate, and flip controls</li>
-                        <li>• Grid lines for perfect composition</li>
-                        <li>• Multiple preset ratios available</li>
+                        <li>• Use high-quality images for best results</li>
+                        <li>• Supported formats: JPG, PNG, WebP, GIF</li>
+                        <li>• Maximum file size: 10MB</li>
+                        <li>• Images will be automatically optimized</li>
                       </ul>
                     </div>
                   </CardContent>
@@ -351,12 +308,6 @@ export default function EditorPage() {
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-gray-500 mt-2">{getThemeDescription(bannerData.designTheme)}</p>
-                      <div className="mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          <Crop className="w-3 h-3 mr-1" />
-                          Auto-crop ratio: {getCropAspectRatio(bannerData.designTheme)?.toFixed(2) || "Free"}
-                        </Badge>
-                      </div>
                     </div>
 
                     <Separator />
@@ -466,10 +417,6 @@ export default function EditorPage() {
                   </span>
                   <div className="flex gap-2">
                     <Badge variant="outline" className="text-xs">
-                      <Crop className="w-3 h-3 mr-1" />
-                      Smart Cropped
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
                       {bannerData.resolution === "4k" ? "4K Quality" : "HD Quality"}
                     </Badge>
                   </div>
@@ -483,8 +430,7 @@ export default function EditorPage() {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Preview Your Banner</h3>
                     <p className="text-sm max-w-md">
-                      Upload and crop images using the smart cropping tools, then click "Generate Preview" to see your
-                      banner
+                      Upload images and add content, then click "Generate Preview" to see your banner
                     </p>
                     <div className="flex justify-center gap-2 mt-4">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
