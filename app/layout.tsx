@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Social Banner Creator",
   description: "Create stunning social media banners with drag & drop simplicity",
-    generator: 'v0.dev'
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
