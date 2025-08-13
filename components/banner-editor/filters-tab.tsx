@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Palette, Sliders, ImageIcon } from "lucide-react"
@@ -140,11 +140,9 @@ export function FiltersTab({
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={resetFilters} className="flex-1 bg-transparent">
-            Reset All
-          </Button>
-        </div>
+        <Button variant="outline" onClick={resetFilters} className="w-full bg-transparent">
+          Reset All Filters
+        </Button>
       </div>
 
       <div className="space-y-2 border-t pt-4">
@@ -152,11 +150,7 @@ export function FiltersTab({
         <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
           {bannerData[selectedImageForFilter as keyof BannerData] ? (
             <img
-              src={
-                (bannerData[selectedImageForFilter as keyof BannerData] as string) ||
-                "/placeholder.svg" ||
-                "/placeholder.svg"
-              }
+              src={(bannerData[selectedImageForFilter as keyof BannerData] as string) || "/placeholder.svg"}
               alt="Filter Preview"
               className="max-w-full max-h-full object-contain rounded"
               style={{ filter: getFilterString(currentFilters) }}

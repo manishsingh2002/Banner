@@ -1,17 +1,15 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Instagram, Smartphone, MousePointer, Layout, Anchor, Filter, Sparkles } from "lucide-react"
-import Link from "next/link"
 
 const features = [
   {
     name: "Instagram Optimized",
     description: "Perfect dimensions and quality for Instagram posts and stories",
     icon: Instagram,
-    href: "/editor",
     color: "bg-pink-500",
     badge: "Mobile First",
   },
@@ -19,7 +17,6 @@ const features = [
     name: "Mobile Preview",
     description: "Real-time mobile-optimized preview with touch-friendly interface",
     icon: Smartphone,
-    href: "/editor",
     color: "bg-blue-500",
     badge: "New",
   },
@@ -27,21 +24,18 @@ const features = [
     name: "Drag & Drop Editor",
     description: "Intuitive drag and drop interface for easy image uploads",
     icon: MousePointer,
-    href: "/editor",
     color: "bg-green-500",
   },
   {
     name: "Template Gallery",
     description: "Choose from professionally designed templates",
     icon: Layout,
-    href: "/templates",
     color: "bg-purple-500",
   },
   {
     name: "Maritime Adventure",
     description: "Ocean-themed templates for travel content",
     icon: Anchor,
-    href: "/maritime",
     color: "bg-teal-500",
     badge: "Featured",
   },
@@ -49,7 +43,6 @@ const features = [
     name: "Advanced Filters",
     description: "Professional image filters optimized for mobile viewing",
     icon: Filter,
-    href: "/filters",
     color: "bg-orange-500",
   },
 ]
@@ -79,9 +72,7 @@ export function FeaturesGrid() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-6 leading-relaxed">{feature.description}</p>
-              <Button asChild className="w-full group-hover:bg-pink-600 transition-colors">
-                <Link href={feature.href}>Explore Feature</Link>
-              </Button>
+              <Button className="w-full group-hover:bg-pink-600 transition-colors">Explore Feature</Button>
             </CardContent>
           </Card>
         )

@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import type { BannerData, TextStyles } from "@/types/banner"
@@ -34,6 +34,8 @@ const defaultTextStyles: TextStyles = {
   shopNameSize: 36,
   productNameFont: "Inter",
   productNameSize: 34,
+  descriptionFont: "Inter",
+  descriptionSize: 18,
   priceFont: "Inter",
   priceSize: 24,
   inspirationalTextFont: "Inter",
@@ -116,42 +118,6 @@ export function TypographyTab({ bannerData, setBannerData, updateTextStyle }: Ty
               <Slider
                 value={[bannerData.textStyles.productNameSize]}
                 onValueChange={([value]) => updateTextStyle("productNameSize", value)}
-                min={12}
-                max={72}
-                step={1}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Price Styling */}
-        <div className="space-y-3 p-4 border rounded-lg">
-          <Label className="font-semibold text-base">Price</Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>Font Family</Label>
-              <Select
-                value={bannerData.textStyles.priceFont}
-                onValueChange={(value) => updateTextStyle("priceFont", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(fontOptions).map(([key, value]) => (
-                    <SelectItem key={key} value={key} style={{ fontFamily: value }}>
-                      {key}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Font Size: {bannerData.textStyles.priceSize}px</Label>
-              <Slider
-                value={[bannerData.textStyles.priceSize]}
-                onValueChange={([value]) => updateTextStyle("priceSize", value)}
                 min={12}
                 max={72}
                 step={1}

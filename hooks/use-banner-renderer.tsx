@@ -229,6 +229,55 @@ export function useBannerRenderer() {
     }
   }
 
+  const renderMinimalist = async (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    scale: number,
+    bannerData: BannerData,
+  ) => {
+    // Clean white background
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, width, height)
+
+    // Maximized centered image
+    if (bannerData.productImage && loadedImages[bannerData.productImage]) {
+      const img = loadedImages[bannerData.productImage]
+      const imageSize = Math.min(width, height) * 0.75
+      const imageX = (width - imageSize) / 2
+      const imageY = (height - imageSize) / 2 - height * 0.05
+
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imageX, imageY, imageSize, imageSize, 15 * scale)
+      ctx.clip()
+      applyImageFilters(ctx, img, imageX, imageY, imageSize, imageSize, bannerData.imageFilters.productImage)
+      ctx.restore()
+    }
+
+    // Compact text at bottom
+    const textY = height * 0.85
+    ctx.fillStyle = "#1e293b"
+    ctx.font = `300 ${Math.min(bannerData.textStyles.shopNameSize * scale, width / 15)}px ${bannerData.textStyles.shopNameFont}`
+    ctx.textAlign = "center"
+
+    if (bannerData.shopName) {
+      ctx.fillText(bannerData.shopName, width / 2, textY)
+    }
+
+    if (bannerData.productName) {
+      ctx.font = `400 ${Math.min(bannerData.textStyles.productNameSize * scale, width / 18)}px ${bannerData.textStyles.productNameFont}`
+      ctx.fillStyle = "#64748b"
+      ctx.fillText(bannerData.productName, width / 2, textY + 25 * scale)
+    }
+
+    if (bannerData.price) {
+      ctx.font = `600 ${Math.min(bannerData.textStyles.priceSize * scale, width / 20)}px ${bannerData.textStyles.priceFont}`
+      ctx.fillStyle = "#059669"
+      ctx.fillText(`$${bannerData.price}`, width / 2, textY + 50 * scale)
+    }
+  }
+
   const generateBanner = useCallback(
     async (bannerData: BannerData) => {
       if (!canvasRef.current) return
@@ -236,7 +285,10 @@ export function useBannerRenderer() {
       setIsGenerating(true)
       const canvas = canvasRef.current
       const ctx = canvas.getContext("2d")
-      if (!ctx) return
+      if (!ctx) {
+        setIsGenerating(false)
+        return
+      }
 
       try {
         const dimensions = getCanvasDimensions(bannerData.resolution)
@@ -246,6 +298,7 @@ export function useBannerRenderer() {
         ctx.imageSmoothingEnabled = true
         ctx.imageSmoothingQuality = "high"
 
+        // Clear canvas with white background
         ctx.fillStyle = "#ffffff"
         ctx.fillRect(0, 0, dimensions.width, dimensions.height)
 
@@ -281,14 +334,37 @@ export function useBannerRenderer() {
           case "social_gallery":
             await renderSocialGallery(ctx, dimensions.width, dimensions.height, scale, bannerData)
             break
+          case "minimalist":
+            await renderMinimalist(ctx, dimensions.width, dimensions.height, scale, bannerData)
+            break
           default:
-            // Simple default rendering
-            ctx.fillStyle = "#f0f0f0"
+            // Simple default rendering with actual content
+            ctx.fillStyle = "#f8fafc"
             ctx.fillRect(0, 0, dimensions.width, dimensions.height)
-            ctx.fillStyle = "#333333"
-            ctx.font = `${Math.min(48 * scale, dimensions.width / 15)}px Inter`
-            ctx.textAlign = "center"
-            ctx.fillText("Social Banner", dimensions.width / 2, dimensions.height / 2)
+
+            // Add shop name
+            if (bannerData.shopName) {
+              ctx.fillStyle = "#1e293b"
+              ctx.font = `bold ${48 * scale}px Inter`
+              ctx.textAlign = "center"
+              ctx.fillText(bannerData.shopName, dimensions.width / 2, dimensions.height / 2 - 50 * scale)
+            }
+
+            // Add product name
+            if (bannerData.productName) {
+              ctx.fillStyle = "#64748b"
+              ctx.font = `${32 * scale}px Inter`
+              ctx.textAlign = "center"
+              ctx.fillText(bannerData.productName, dimensions.width / 2, dimensions.height / 2)
+            }
+
+            // Add price
+            if (bannerData.price) {
+              ctx.fillStyle = "#059669"
+              ctx.font = `bold ${36 * scale}px Inter`
+              ctx.textAlign = "center"
+              ctx.fillText(`$${bannerData.price}`, dimensions.width / 2, dimensions.height / 2 + 50 * scale)
+            }
             break
         }
       } catch (error) {

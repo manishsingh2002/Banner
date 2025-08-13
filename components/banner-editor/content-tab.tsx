@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Smartphone, Instagram } from "lucide-react"
-import { DragDropZone } from "@/components/drag-drop-zone"
 import { MultiImageUploader } from "@/components/multi-image-uploader"
+import { DragDropZone } from "@/components/drag-drop-zone"
 import type { BannerData } from "@/types/banner"
+import { Smartphone, Instagram } from "lucide-react"
 
 interface ContentTabProps {
   bannerData: BannerData
@@ -20,7 +20,7 @@ export function ContentTab({ bannerData, setBannerData, handleMultiImageUpload }
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="shopName">Shop Name</Label>
+        <Label htmlFor="shopName">Shop Name *</Label>
         <Input
           id="shopName"
           placeholder="Enter your shop name"
@@ -30,7 +30,7 @@ export function ContentTab({ bannerData, setBannerData, handleMultiImageUpload }
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="productName">Product Name</Label>
+        <Label htmlFor="productName">Product Name *</Label>
         <Input
           id="productName"
           placeholder="Enter product name"
@@ -72,19 +72,20 @@ export function ContentTab({ bannerData, setBannerData, handleMultiImageUpload }
               | "minimalist"
               | "vibrant"
               | "elegant_cursive"
-              | "inspirational_vibes",
+              | "inspirational_vibes"
+              | "maritime_adventure",
           ) => setBannerData((prev) => ({ ...prev, designTheme: value }))}
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="social_gallery">Social Gallery Post</SelectItem>
-            <SelectItem value="instagram_mood">Instagram Mood Board</SelectItem>
-            <SelectItem value="inspirational_vibes">Inspirational Vibes</SelectItem>
-            <SelectItem value="elegant_cursive">Elegant Cursive Accent</SelectItem>
-            <SelectItem value="minimalist">Minimalist Chic</SelectItem>
-            <SelectItem value="vibrant">Vibrant & Bold</SelectItem>
+            <SelectItem value="social_gallery">📱 Social Gallery Post</SelectItem>
+            <SelectItem value="instagram_mood">🎨 Instagram Mood Board</SelectItem>
+            <SelectItem value="inspirational_vibes">✨ Inspirational Vibes</SelectItem>
+            <SelectItem value="elegant_cursive">💫 Elegant Cursive</SelectItem>
+            <SelectItem value="minimalist">🤍 Minimalist Chic</SelectItem>
+            <SelectItem value="vibrant">🌈 Vibrant & Bold</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -136,25 +137,6 @@ export function ContentTab({ bannerData, setBannerData, handleMultiImageUpload }
                 reader.readAsDataURL(file)
               } else {
                 setBannerData((prev) => ({ ...prev, inspirationalImage1: null }))
-              }
-            }}
-          />
-
-          <DragDropZone
-            label="Secondary Image (Optional)"
-            currentImage={bannerData.inspirationalImage2}
-            onFileUpload={(file) => {
-              if (file) {
-                const reader = new FileReader()
-                reader.onload = (e) => {
-                  setBannerData((prev) => ({
-                    ...prev,
-                    inspirationalImage2: e.target?.result as string,
-                  }))
-                }
-                reader.readAsDataURL(file)
-              } else {
-                setBannerData((prev) => ({ ...prev, inspirationalImage2: null }))
               }
             }}
           />

@@ -20,6 +20,8 @@ export interface TextStyles {
   shopNameSize: number
   productNameFont: string
   productNameSize: number
+  descriptionFont: string
+  descriptionSize: number
   priceFont: string
   priceSize: number
   inspirationalTextFont: string
@@ -49,6 +51,7 @@ export interface BannerData {
     | "elegant_cursive"
     | "inspirational_vibes"
     | "maritime_adventure"
+  description: string
   photographer: string
   price: string
   inspirationalText: string
